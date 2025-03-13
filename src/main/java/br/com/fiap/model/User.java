@@ -1,30 +1,26 @@
 package br.com.fiap.model;
 
-import br.com.fiap.service.LoginService;
-
 import java.rmi.UnexpectedException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final int id;
+    private final String id;
     private String name;
     private String cpf;
     private String username;
-    private String password;
-    private final LoginService login = new LoginService();
+    private final String password;
     private final List<Account> accounts = new ArrayList<>();
 
-    public User(int id, String name, String cpf, LocalDate birthdate, String username, String password) {
+    public User(String id, String name, String cpf, String username, String password) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.username = username;
-        this.password = this.login.generatePasswordHash(password);
+        this.password = password;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -54,10 +50,6 @@ public class User {
 
     public String getPassword() {
         return password;
-    }
-
-    public void changePassword(String password) {
-        this.password = this.login.generatePasswordHash(password);
     }
 
     public void addAccount(Account account) {
