@@ -7,31 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Account {
     private String name;
     private double balance;
-    private ArrayList<Transaction> transactions;
-    private ArrayList<Investimento> investments;
+    private List<Transaction> transactions = new ArrayList<>();
+    private List<Investimento> investments = new ArrayList<>();
 
     public Account(String name, double balance) {
-        this.transactions = new ArrayList<>();
-        this.investments = new ArrayList<>();
         this.balance = balance;
         this.name = name;
     }
 
-    public void adicionarTransacao(Transaction transaction) {
-        if (transaction.getTipo().equalsIgnoreCase("Recebimento")) {
-            this.balance += Math.abs(transaction.getAmount());
-        } else {
-            if (this.balance < transaction.getAmount()) {
-                System.out.println("Saldo insuficiente!");
-            } else {
-                this.balance -= Math.abs(transaction.getAmount());
-                System.out.println("Gasto adicionado com sucesso!");
-            }
-        }
+    public void addTransaction(Transaction transaction) {
+        balance += transaction.getAmount();
         transactions.add(transaction);
     }
 
@@ -45,45 +35,44 @@ public class Account {
         System.out.println("Investimento realizado com sucesso!");
     }
 
-    public Transaction validarTransacao(Scanner scanner, TransactionType type, List<ExpenseCategory> categories) {
-        System.out.println("Valor: ");
-        Double valor = Double.valueOf(scanner.nextLine());
-        System.out.println("Data: (dd/mm/yyyy) ");
-        String data = scanner.nextLine();
-
-        // Formata a data
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate date = null;
-        try {
-            date = LocalDate.parse(data, formatter);
-        } catch (DateTimeParseException e) {
-            System.out.println("Formato invalido. Use dd/mm/yyyy.");
-        }
-        System.out.println("Descrição: ");
-        String descricao = scanner.nextLine();
-
-        // Valida se a transação é um gasto ou recebimento
-        if (type == TransactionType.EXPENSE) {
-            System.out.println("Escolha a categoria do gasto: ");
-            for (ExpenseCategory category : categories) {
-                System.out.println(category.getId() + ") " + category.getName());
-            }
-
-            int categoryId = Integer.valueOf(scanner.nextLine());
-
-            // Buscar na lista de categorias a categoria com o id informado
-            Optional<ExpenseCategory> category =
-                    categories.stream().filter(c -> c.getId() == categoryId).findFirst();
-
-            if (category.isEmpty()) {
-                throw new IllegalArgumentException("Categoria escolhida é inválida");
-            }
-
-            return new Expense(valor, date, category.get());
-        } else {
-            return new Recebimento(valor, date, descricao);
-        }
-    }
+//    public Transaction validarTransacao(Scanner scanner, TransactionType type, List<ExpenseCategory> categories) {
+//        System.out.println("Valor: ");
+//        Double valor = Double.valueOf(scanner.nextLine());
+//        System.out.println("Data: (dd/mm/yyyy) ");
+//        String data = scanner.nextLine();
+//
+//        // Formata a data
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        LocalDate date = null;
+//        try {
+//            date = LocalDate.parse(data, formatter);
+//        } catch (DateTimeParseException e) {
+//            System.out.println("Formato invalido. Use dd/mm/yyyy.");
+//        }
+//        System.out.println("Descrição: ");
+//        String descricao = scanner.nextLine();
+//
+//        // Valida se a transação é um gasto ou recebimento
+//        if (type == TransactionType.EXPENSE) {
+//            System.out.println("Escolha a categoria do gasto: ");
+//            for (ExpenseCategory category : categories) {
+//                System.out.println(category.getId() + ") " + category.getName());
+//            }
+//
+//            int categoryId = Integer.valueOf(scanner.nextLine());
+//
+//            // Buscar na lista de categorias a categoria com o id informado
+//            Optional<ExpenseCategory> category =
+//                    categories.stream().filter(c -> c.getId() == categoryId).findFirst();
+//
+//            if (category.isEmpty()) {
+//                throw new IllegalArgumentException("Categoria escolhida é inválida");
+//            }
+//            return new Expense(valor, date, category.get());
+//        } else {
+//            return new Income(valor, date, descricao);
+//        }
+//    }
 
 
     public Investimento validarInvestimento(Scanner scanner) {
@@ -136,17 +125,39 @@ public class Account {
         }
     }
 
-    public void exibirRelatorio() {
+    public void exibirRelatorio(Account account) {
         ArrayList<Transaction> gastos = new ArrayList<>();
         ArrayList<Transaction> recebimentos = new ArrayList<>();
 
         for (Transaction transaction : this.transactions) {
-            if (transaction.getTipo().equalsIgnoreCase("Gasto")) {
-                gastos.add(transaction);
-            } else if (transaction.getTipo().equalsIgnoreCase("Recebimento")) {
-                recebimentos.add(transaction);
+            List<Transaction> expenses = transactions.stream()
+                    .filter(t -> t.getType() == TransactionType.EXPENSE) // Filtra todas as transações que são instancias da classe Expense
+                    .collect(Collectors.toList());
+
+            List<Transaction> incomes = transactions.stream().filter(t -> t.getType() == TransactionType.EXPENSE).collect(Collectors.toList());
+
+            for(Transaction expense : expenses)  {
+                gastos.add(expense);
             }
+
+            for(Transaction income : incomes)  {
+                recebimentos.add(income);
+
+            }
+
+
+
+
+
         }
+
+//        public Boolean filtrarDespesa(Transaction t) {
+//                    return t instanceof Expense;
+//                }
+
+
+        List<Transaction> incomes = transactions.stream().filter(t -> t.getType() == TransactionType.EXPENSE).collect(Collectors.toList());
+
         // Exibe os gastos
         System.out.println("\nTransações:");
         System.out.println("===============================================================");
@@ -175,7 +186,7 @@ public class Account {
         return balance;
     }
 
-    public ArrayList<Transaction> getTransactions() {
+    public List<Transaction> getTransactions() {
         return transactions;
     }
 }
