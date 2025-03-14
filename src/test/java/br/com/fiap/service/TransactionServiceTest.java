@@ -90,6 +90,8 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Não deve permitir adicionar uma transferência se as contas de origem e destino forem iguais")
     void shouldFailToAddTransferIfAccountsAreEqual() {
+        Account account = new Account(UUID.randomUUID().toString(), "Teste", 500);
+
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.addTransfer(account, account, LocalDate.now(), 100),
@@ -116,7 +118,7 @@ class TransactionServiceTest {
     @DisplayName("Não deve permitir adicionar uma transferência se a conta origem não possui saldo suficiente")
     void shouldFailToAddTransferIfFromAccountDoesNotHaveEnoughBalance() {
         // ARRANGE
-        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 500);
+        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 50);
         Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
 
         // ACT + ASSERT
@@ -136,7 +138,7 @@ class TransactionServiceTest {
 
         // ACT + ASSERT
         assertDoesNotThrow(() -> service.addTransfer(from, to, LocalDate.now(), 100), "Não deveria lançar exceção ao adicionar uma transferência válida");
-        assertEquals(0, from.getBalance(), "O saldo da conta de origem deveria ser 0");
+        assertEquals(400, from.getBalance(), "O saldo da conta de origem deveria ser 400");
         assertEquals(200, to.getBalance(), "O saldo da conta de destino deveria ser 200");
     }
 }
