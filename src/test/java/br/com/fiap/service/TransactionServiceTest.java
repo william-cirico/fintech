@@ -135,8 +135,8 @@ class TransactionServiceTest {
         Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
 
         // ACT + ASSERT
-        assertDoesNotThrow(() -> service.addTransfer(from, to, LocalDate.now(), 100));
-        assertEquals(0, from.getBalance());
-        assertEquals(100, to.getBalance());
+        assertDoesNotThrow(() -> service.addTransfer(from, to, LocalDate.now(), 100), "Não deveria lançar exceção ao adicionar uma transferência válida");
+        assertEquals(0, from.getBalance(), "O saldo da conta de origem deveria ser 0");
+        assertEquals(200, to.getBalance(), "O saldo da conta de destino deveria ser 200");
     }
 }
