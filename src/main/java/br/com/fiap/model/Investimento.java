@@ -10,7 +10,7 @@ public class Investimento {
     private String liquidez;
     private LocalDate dataVencimento;
     private double rentabilidade;
-
+    private String longDate;
 
     public Investimento(double valorAporte, double rentabilidade, LocalDate dataAporte){
         this.valorAporte = valorAporte;
@@ -59,6 +59,23 @@ public class Investimento {
 
     @Override
     public String toString() {
+
+        if(risco == null){
+            risco = "Não informado";
+        }
+
+        if(tipoInvestimento == null){
+            tipoInvestimento = "Não informado";
+        }
+        if(liquidez == null){
+            liquidez = "Não informado";
+        }
+            // Pensar em como resolver para data de vencimento
+     //   if(dataVencimento == null){
+
+       // }
+
+
         return "valor: " + valorAporte + "\n" + "data: " + dataAporte +
                 "\n" + "tipoInvestimento: " + tipoInvestimento + "\n" +
                 "risco: " + risco + "\n" +

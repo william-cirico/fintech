@@ -34,7 +34,7 @@ public class AuthService {
         }
 
         User user = foundUser.get();
-        if (verifyPassword(password, user.getPassword())) {
+        if (!verifyPassword(password, user.getPassword())) {
             throw new IllegalArgumentException("Usuário ou senha inválidos");
         }
 
