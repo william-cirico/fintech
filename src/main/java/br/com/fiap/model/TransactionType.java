@@ -2,5 +2,6 @@ package br.com.fiap.model;
 
 public enum TransactionType {
     INCOME,
-    EXPENSE
+    EXPENSE,
+    TRANSFER
 }
