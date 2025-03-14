@@ -8,7 +8,11 @@ import java.util.*;
 public class AuthService {
     private final List<User> users = new ArrayList<>();
 
-    public User registerUser(String name, String cpf, String username, String password, String confirmPassword) {
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
         // Verificando se as senhas são iguais
         if (!password.equals(confirmPassword)) {
             throw new IllegalArgumentException("As senhas não são iguais");
@@ -21,8 +25,6 @@ public class AuthService {
 
         User newUser = new User(UUID.randomUUID().toString(), name, cpf, username, hashPassword(password));
         users.add(newUser);
-
-        return newUser;
     }
 
 
@@ -34,7 +36,7 @@ public class AuthService {
         }
 
         User user = foundUser.get();
-        if (verifyPassword(password, user.getPassword())) {
+        if (!verifyPassword(password, user.getPassword())) {
             throw new IllegalArgumentException("Usuário ou senha inválidos");
         }
 
