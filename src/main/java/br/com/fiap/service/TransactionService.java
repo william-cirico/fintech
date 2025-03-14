@@ -21,4 +21,6 @@ public class TransactionService {
         Transaction transaction = new Expense(UUID.randomUUID().toString(), -amount, date, "Gasto", category);
         account.addTransaction(transaction);
     }
+
+    public void addTransfer(Account from, Account to, LocalDate date, double amount) {}
 }

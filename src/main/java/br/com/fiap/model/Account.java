@@ -10,12 +10,14 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Account {
+    private String id;
     private String name;
     private double balance;
     private List<Transaction> transactions = new ArrayList<>();
     private List<Investimento> investments = new ArrayList<>();
 
-    public Account(String name, double balance) {
+    public Account(String id, String name, double balance) {
+        this.id = id;
         this.balance = balance;
         this.name = name;
     }
