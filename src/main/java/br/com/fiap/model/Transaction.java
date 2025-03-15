@@ -63,6 +63,6 @@ public abstract class Transaction {
         return "Tipo da Transação: " + getType() + ", \n" +
                 "Valor: " + amount + ", \n" +
                 "Data: " + date + ", \n" +
-                "Descrição: '" + description;
+                "Descrição: " + description;
     }
 }
