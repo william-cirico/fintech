@@ -6,14 +6,11 @@ import br.com.fiap.service.TransactionService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private final static Scanner scanner = new Scanner(System.in);
-    private final static List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
+    private static final List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
             new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
             new ExpenseCategory(2, "Saúde", ExpenseCategoryType.ESSENTIAL)
 
@@ -22,7 +19,27 @@ public class Main {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final static AuthService authService = new AuthService();
+
     private static User authenticatedUser = null;
+
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("Bem-Vindo ");
+            System.out.println("1) Criar usuário");
+            System.out.println("2) Fazer login");
+            System.out.println("3) Sair");
+            System.out.println("Digite a opção desejada: ");
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option) {
+                case 1 -> createUser();
+                case 2 -> loginUser();
+                case 3 -> System.exit(0);
+                default -> System.out.println("Opção inválida");
+            }
+        }
+    }
 
     public static ExpenseCategory selectExpenseCategory() {
         while (true) {
@@ -42,7 +59,7 @@ public class Main {
         }
     }
 
-    public static void showMenu(){
+    public static void showMenu() {
         while (true) {
             System.out.println("\nEscolha uma opção:");
             System.out.println("1 - Adicionar Gasto");
@@ -68,7 +85,7 @@ public class Main {
             }
         }
 
-}
+    }
 
     public static void main(String[] args) {
 
@@ -159,7 +176,7 @@ public class Main {
     }
 
 
-    private static void viewAccount(){
+    private static void viewAccount() {
 
         System.out.println("-----------------------------------------------------------------------");
         System.out.println("Account View");
@@ -171,7 +188,7 @@ public class Main {
         System.out.println("Digite o valor: ");
         double balance = scanner.nextDouble();
 
-        Account account = new Account(name, balance);
+        Account account = new Account(UUID.randomUUID().toString(), name, balance);
 
 
         //Teste construtor básico do investimento e utilização do método adicionarInvestimento.
