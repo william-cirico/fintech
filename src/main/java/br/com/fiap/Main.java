@@ -13,8 +13,13 @@ public class Main {
     private static final List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
             new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
             new ExpenseCategory(2, "Saúde", ExpenseCategoryType.ESSENTIAL)
+
     ));
-    private static final AuthService authService = new AuthService();
+
+    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    private final static AuthService authService = new AuthService();
+
     private static User authenticatedUser = null;
 
     public static void main(String[] args) {
@@ -67,6 +72,11 @@ public class Main {
             int option = Integer.valueOf(scanner.nextLine());
 
             switch (option) {
+
+                case 1 ->{}
+                case 2 ->{}
+                case 3 ->{viewAccount();}
+                case 4 ->{}
                 case 5 -> {
                     authenticatedUser = null;
                     System.out.println("Logout realizado!");
@@ -75,6 +85,27 @@ public class Main {
             }
         }
 
+    }
+
+    public static void main(String[] args) {
+
+        while (true) {
+
+            System.out.println("Bem-Vindo ");
+            System.out.println("1) Criar usuário");
+            System.out.println("2) Fazer login");
+            System.out.println("3) Sair");
+            System.out.println("Digite a opção desejada: ");
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option) {
+                case 1 -> createUser();
+                case 2 -> loginUser();
+                case 3 -> System.exit(0);
+                default -> System.out.println("Opção inválida");
+            }
+        }
     }
 
     public static void loginUser() {
@@ -165,15 +196,30 @@ public class Main {
         double contribution = Double.valueOf(scanner.nextDouble());
         System.out.println("Digite a rentabilidade: ");
         double profitability = Double.valueOf(scanner.nextDouble());
-        System.out.println("Digite a data do aporte (dd/mm/yyyy): ");
-        String date = String.valueOf(scanner.nextLine() + scanner.next());
+        scanner.nextLine();
 
 
-        Investimento investimento = new Investimento(contribution, profitability, LocalDate.parse(date));
+        LocalDate date = null;
+        boolean dataValida = false;
+
+        while (!dataValida) {
+            System.out.println("Digite a data (yyyy-mm-dd):");
+            String input = scanner.nextLine();
+
+            try {
+                 date = LocalDate.parse(input,formatter);
+                dataValida = true;
+            } catch (Exception e) {
+                System.out.println("Data inválida. Tente novamente.");
+            }
+        }
+
+
+        Investimento investimento = new Investimento(contribution, profitability,date);
 
         // Informaçōes adicionais sobre o investimento
         System.out.println("Gostaria de adicionar mais informaçōes sobre o investimento? (Sim ou Não)");
-        String resposta = String.valueOf(scanner.nextLine() + scanner.next());
+        String resposta = String.valueOf(scanner.nextLine());
         if (resposta.equalsIgnoreCase("Sim")) {
             System.out.println("Tipo do investimento: ");
             String type = scanner.nextLine();
@@ -186,13 +232,25 @@ public class Main {
             investimento.setLiquidez(liquid);
 
             // Formata a data do vencimento
-            System.out.println("Data de vencimento (dd/mm/yyyy)");
-            LocalDate dueDate = LocalDate.parse(scanner.nextLine());
+
+            dataValida = false;
+
+            while(!dataValida){
+                try{
+                    System.out.println("Data de vencimento (dd/mm/yyyy)");
+                    LocalDate dueDate = LocalDate.parse(scanner.nextLine(), formatter);
+                    dataValida = true;
+
+                } catch (Exception e){
+                    System.out.println("Data inválida. Tente novamente.");
+                }
+            }
         } else if (resposta.equalsIgnoreCase("Não") || resposta.equalsIgnoreCase("Nao")) {
             System.out.println("Dados não preenchidos permanecerão vazios.");
         } else {
             System.out.println("Resposta inválida. Considerando como 'Não'.");
         }
+        System.out.println(investimento.toString());
         account.exibirRelatorio(account);
 
     }
