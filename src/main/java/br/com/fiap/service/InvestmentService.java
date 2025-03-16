@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class InvestmentService {
     public Investment addInvestment(Account account, double contribution, double profitability, LocalDate date) {
-        if (!account.withdraw(contribution)) throw new IllegalArgumentException("Saldo insuficiente para realizar o investimento desejado.");
+        if (!account.withdraw(contribution) || profitability < 0)throw new IllegalArgumentException("Saldo insuficiente para realizar o investimento desejado.");
 
         Investment investment = new Investment(contribution, profitability,date);
 

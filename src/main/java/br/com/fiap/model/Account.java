@@ -17,6 +17,10 @@ public class Account {
         return id;
     }
 
+    public List<Investment> getInvestments() {
+        return investments;
+    }
+
     public String getName() {
         return name;
     }
@@ -35,14 +39,13 @@ public class Account {
         if (investimento.getAmount() > balance) {
             return;
         }
-        balance -= investimento.getAmount();
         investments.add(investimento);
         System.out.println("Investimento realizado com sucesso!");
     }
 
 
     public boolean withdraw(double value) {
-        if (balance < value) {
+        if (balance < value || value <= 0) {
             return false;
         }
 
