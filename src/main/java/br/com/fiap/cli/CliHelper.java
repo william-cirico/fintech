@@ -114,26 +114,42 @@ public class CliHelper {
     public void showMenu() {
         while (true) {
             System.out.println("\nEscolha uma opção:");
-            System.out.println("1 - Cadastrar conta");
-            System.out.println("2 - Adicionar Gasto");
-            System.out.println("3 - Adicionar Recebimento");
-            System.out.println("4 - Adicionar Investimento");
-            System.out.println("5 - Exibir Relatório Financeiro");
-            System.out.println("6 - Logout");
-            System.out.print("Opção: ");
+
+            if(authenticatedUser.getAccounts().size() == 0) {
+                System.out.println("1 - Cadastrar conta");
+
+            }
+            else {
+                System.out.println("1 - Cadastrar conta");
+                System.out.println("2 - Adicionar Gasto");
+                System.out.println("3 - Adicionar Recebimento");
+                System.out.println("4 - Adicionar Investimento");
+                System.out.println("5 - Exibir Relatório Financeiro");
+                System.out.println("6 - Logout");
+                System.out.print("Opção: ");
+            }
 
             int option = Integer.valueOf(scanner.nextLine());
 
-            switch (option) {
-                case 1 -> createAccount();
-                case 2 -> createExpense();
-                case 3 -> createIncome();
-                case 4 -> createInvestment();
-                case 5 -> showAccountReport();
-                case 6 -> {
-                    authenticatedUser = null;
-                    System.out.println("Logout realizado!");
-                    return;
+            if(authenticatedUser.getAccounts().isEmpty()){
+                switch (option){
+                    case 1 -> createAccount();
+                    default -> System.out.println("Opção inválida");
+                }
+            }
+            else if(!authenticatedUser.getAccounts().isEmpty()){ // Acrescentado if para ficar com melhor legibilidade.
+                switch (option) {
+                    case 1 -> createAccount();
+                    case 2 -> createExpense();
+                    case 3 -> createIncome();
+                    case 4 -> createInvestment();
+                    case 5 -> showAccountReport();
+                    case 6 -> {
+                        authenticatedUser = null;
+                        System.out.println("Logout realizado!");
+                        return;
+                    }
+                    default -> System.out.println("Opção inválida");
                 }
             }
         }
