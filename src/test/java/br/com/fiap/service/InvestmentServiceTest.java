@@ -78,6 +78,19 @@ class InvestmentServiceTest {
                 () -> investmentService.addInvestment(account, 2000, -10, LocalDate.now()),
                 "Não é possível realizar um investimento com rentabilidade menor que 0");
     }
+
+    @Test
+    @DisplayName("Não deve permitir realizar o investimento com saldo menor do que o valor do investimento e a rentabilidade negativa")
+    void shouldFailToAddInvestmentIfDoesNotHaveEnoughBalanceAndProfitabilityIsNegative() {
+
+        // ARRANGE
+        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+
+        // ACT + ASSERT
+        assertThrows(IllegalArgumentException.class,
+                () -> investmentService.addInvestment(account, 2000, -10, LocalDate.now()),
+                "Não é possível realizar um investimento maior do que o saldo disponível e com rentabilidade negativa.");
+    }
 }
 
 
