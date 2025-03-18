@@ -63,33 +63,7 @@ public class Account {
 
 
     public void showReport() {
-        List<Transaction> expenses = transactions.stream()
-                .filter(t -> t.getType() == TransactionType.EXPENSE) // Filtra todas as transações que são instancias da classe Expense
-                .toList();
-        List<Transaction> incomes = transactions.stream().filter(t -> t.getType() == TransactionType.INCOME)
-                .toList();
 
-        // Exibe os gastos
-        System.out.println("\nTransações: ");
-        System.out.println("===============================================================");
-        System.out.println("\nGastos: ");
-        for (Transaction expense : expenses) {
-            System.out.println(expense);
-        }
-        System.out.println("===============================================================");
-        // Exibe os recebimentos
-        System.out.println("\nRecebimentos: ");
-        for (Transaction income : incomes) {
-            System.out.println(income);
-        }
-        System.out.println("===============================================================");
-        // Exibe investimentos
-        System.out.println("\nInvestimentos: ");
-        for (Investment investimento : investments) {
-            System.out.println(investimento);
-        }
-        // Saldo
-        System.out.println("Saldo da conta: " + this.balance);
     }
 
     public double getBalance() {

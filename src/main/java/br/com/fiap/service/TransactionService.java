@@ -3,7 +3,10 @@ package br.com.fiap.service;
 import br.com.fiap.model.*;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Classe responsável por gerenciar transações financeiras em contas bancárias.
@@ -94,5 +97,26 @@ public class TransactionService {
         // Realiza a movimentação do saldo entre as contas
         from.withdraw(amount);
         to.deposit(amount);
+    }
+
+    public List<Transaction> getTransactionsByTypeAndPeriodFromAccount(Account account, TransactionType type, LocalDate start, LocalDate end) {
+        return account.getTransactions().stream()
+                .filter(t -> t.getType() == type &&
+                        isWithinPeriod(t, start, end))
+                .sorted(Comparator.comparing(Transaction::getDate))
+                .collect(Collectors.toList());
+    }
+
+    public List<Expense> getExpensesByCategoryTypeAndPeriodFromAccount(Account account, ExpenseCategoryType type, LocalDate start, LocalDate end) {
+        return account.getTransactions().stream()
+                .filter(t -> t instanceof Expense)
+                .map(t -> (Expense) t)
+                .filter(t -> t.getCategory().getType() == type &&
+                        isWithinPeriod(t, start, end)).collect(Collectors.toList());
+    }
+
+    private boolean isWithinPeriod(Transaction t, LocalDate start, LocalDate end) {
+        return (t.getDate().isAfter(start) || t.getDate().isEqual(start)) &&
+                (t.getDate().isBefore(end) || t.getDate().isEqual(end));
     }
 }

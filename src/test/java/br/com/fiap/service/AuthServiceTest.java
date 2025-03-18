@@ -55,6 +55,10 @@ class AuthServiceTest {
     @Test
     @DisplayName("Não deve permitir login com e-mail que não existe")
     void shouldFailToLoginUserIfEmailDoesNotExist() {
+        // ARRANGE
+        service.registerUser("name", "cpf", "differentEmail", "password", "password");
+
+        // ACT + ASSERT
         assertThrows(
                 NoSuchElementException.class,
                 () -> service.login("email", "password"),

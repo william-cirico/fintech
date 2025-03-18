@@ -1,6 +1,7 @@
 package br.com.fiap.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Transfer extends Transaction {
     private final Account from;
@@ -18,5 +19,17 @@ public class Transfer extends Transaction {
 
     public Account getTo() {
         return to;
+    }
+
+    @Override
+    public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return String.format("[%s] %s - %s (%.2f) - De: %s | Para: %s",
+                this.getDate().format(formatter),
+                "🔄 Transferência",
+                this.getDescription(),
+                this.getAmount(),
+                this.getFrom().getName(),
+                this.getTo().getName());
     }
 }

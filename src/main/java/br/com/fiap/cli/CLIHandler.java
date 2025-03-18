@@ -3,13 +3,14 @@ package br.com.fiap.cli;
 import br.com.fiap.model.*;
 import br.com.fiap.service.AuthService;
 import br.com.fiap.service.InvestmentService;
+import br.com.fiap.service.ReportService;
 import br.com.fiap.service.TransactionService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class CliHelper {
+public class CLIHandler {
     private final Scanner scanner = new Scanner(System.in);
     private final List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
             new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
@@ -21,13 +22,15 @@ public class CliHelper {
     private final AuthService authService;
     private final TransactionService transactionService;
     private final InvestmentService investmentService;
+    private final ReportService reportService;
 
     private User authenticatedUser = null;
 
-    public CliHelper(TransactionService transactionService, AuthService authService, InvestmentService investmentService) {
+    public CLIHandler(TransactionService transactionService, AuthService authService, InvestmentService investmentService, ReportService reportService) {
         this.transactionService = transactionService;
         this.authService = authService;
         this.investmentService = investmentService;
+        this.reportService = reportService;
     }
 
     public void run() {
@@ -49,7 +52,7 @@ public class CliHelper {
         }
     }
 
-    public ExpenseCategory selectExpenseCategory() {
+    private ExpenseCategory selectExpenseCategory() {
         while (true) {
             System.out.println("Selecione a categoria do gasto:");
             for (int i = 0; i < expenseCategories.size(); i++) {
@@ -67,19 +70,19 @@ public class CliHelper {
         }
     }
 
-    public LocalDate getParsedDate(String label) {
+    private LocalDate getParsedDate(String label) {
         while (true) {
             try {
                 System.out.println(label);
                 return LocalDate.parse(scanner.nextLine(), formatter);
-            } catch  (Exception ignored) {
+            } catch (Exception ignored) {
                 System.out.println("Data inválida.");
             }
         }
     }
 
-    public void createExpense() {
-        Account account = selectAccount();
+    private void createExpense() {
+        Account account = selectAccount("Seleciona a conta: ");
 
         System.out.println("Digite o valor do gasto: ");
         double amount = scanner.nextDouble();
@@ -95,8 +98,8 @@ public class CliHelper {
         }
     }
 
-    public void createIncome(){
-        Account account = selectAccount();
+    private void createIncome() {
+        Account account = selectAccount("Selecione a conta: ");
 
         System.out.println("Digite o valor do recebimento: ");
         double amount = scanner.nextDouble();
@@ -104,47 +107,48 @@ public class CliHelper {
 
         LocalDate parsedDate = getParsedDate("Digite a data do recebimento (dd/mm/yyyy): ");
 
-        try{
+        try {
             transactionService.addIncome(account, parsedDate, amount);
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public void showMenu() {
+    private void showMenu() {
         while (true) {
             System.out.println("\nEscolha uma opção:");
 
-            if(authenticatedUser.getAccounts().size() == 0) {
+            if (authenticatedUser.getAccounts().isEmpty()) {
                 System.out.println("1 - Cadastrar conta");
 
-            }
-            else {
+            } else {
                 System.out.println("1 - Cadastrar conta");
                 System.out.println("2 - Adicionar Gasto");
                 System.out.println("3 - Adicionar Recebimento");
-                System.out.println("4 - Adicionar Investimento");
-                System.out.println("5 - Exibir Relatório Financeiro");
-                System.out.println("6 - Logout");
+                System.out.println("4 - Adicionar Transferência");
+                System.out.println("5 - Adicionar Investimento");
+                System.out.println("6 - Relatórios");
+                System.out.println("7 - Logout");
                 System.out.print("Opção: ");
             }
 
-            int option = Integer.valueOf(scanner.nextLine());
+            int option = Integer.parseInt(scanner.nextLine());
 
-            if(authenticatedUser.getAccounts().isEmpty()){
-                switch (option){
-                    case 1 -> createAccount();
-                    default -> System.out.println("Opção inválida");
+            if (authenticatedUser.getAccounts().isEmpty()) {
+                if (option == 1) {
+                    createAccount();
+                } else {
+                    System.out.println("Opção inválida");
                 }
-            }
-            else if(!authenticatedUser.getAccounts().isEmpty()){ // Acrescentado if para ficar com melhor legibilidade.
+            } else {
                 switch (option) {
                     case 1 -> createAccount();
                     case 2 -> createExpense();
                     case 3 -> createIncome();
-                    case 4 -> createInvestment();
-                    case 5 -> showAccountReport();
-                    case 6 -> {
+                    case 4 -> createTransfer();
+                    case 5 -> createInvestment();
+                    case 6 -> showReportsMenu();
+                    case 7 -> {
                         authenticatedUser = null;
                         System.out.println("Logout realizado!");
                         return;
@@ -156,12 +160,46 @@ public class CliHelper {
 
     }
 
-    public void showAccountReport() {
-        Account account = selectAccount();
-        account.showReport();
+    private void showReportsMenu() {
+        while (true) {
+            System.out.println("=== Relatórios ===");
+            System.out.println("1) Relatório Geral");
+            System.out.println("2) Relatório de Despesas");
+            System.out.println("3) Relatório de Receitas");
+            System.out.println("4) Relatório de Transferências");
+            System.out.println("5) Relatório de Despesas Essenciais");
+            System.out.println("6) Relatório de Despesas Não Essenciais");
+            System.out.println("7) Rank de Despesas por Categoria");
+            System.out.println("8) Sair");
+            System.out.println("Digite a opção: ");
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            if (option == 8) {
+                break;
+            }
+
+            // Obtendo o intervalo de datas do último mês
+            LocalDate startDate = LocalDate.now().minusMonths(1);
+            LocalDate endDate = LocalDate.now();
+
+            Account account = selectAccount("Escolha uma conta para gerar o relatório: ");
+
+            switch (option) {
+                case 1 -> reportService.printAccountReport(account);
+                case 2 -> reportService.printExpenseReportByPeriodFromAccount(account, startDate, endDate);
+                case 3 -> reportService.printIncomeReportByPeriodFromAccount(account, startDate, endDate);
+                case 4 -> reportService.printTransferReportByPeriodFromAccount(account, startDate, endDate);
+                case 5 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.ESSENTIAL, startDate, endDate);
+                case 6 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.NON_ESSENTIAL, startDate, endDate);
+                case 7 -> reportService.printTopExpenseCategoriesByPeriod(account, startDate, endDate);
+                default -> System.out.println("Opção inválida");
+            }
+        }
     }
 
-    public void loginUser() {
+    private void loginUser() {
         System.out.println("--- Login ---");
         System.out.println("Digite o seu e-mail: ");
         String username = scanner.nextLine();
@@ -178,6 +216,28 @@ public class CliHelper {
         }
     }
 
+    private void createTransfer() {
+        if (authenticatedUser.getAccounts().size() < 2) {
+            System.out.println("Para realizar uma transferência é necessário possuir pelo menos duas contas");
+            return;
+        }
+
+        Account from = selectAccount("Selecione a conta de origem: ");
+        Account to = selectAccount("Selecione a conta de destino: ");
+
+        System.out.println("Digite o valor que será transferido: ");
+        double amount = Double.parseDouble(scanner.nextLine());
+
+        LocalDate date = getParsedDate("Digite a data da transferência (dd/mm/yyyy): ");
+
+        try {
+            transactionService.addTransfer(from, to, date, amount);
+            System.out.println("Transferência realizada com sucesso!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     private void createAccount() {
         System.out.println("Digite o nome da conta: ");
@@ -185,22 +245,22 @@ public class CliHelper {
 
 
         double balance;
-        do{
+        do {
             System.out.println("Digite o saldo inicial: ");
-            balance = Double.valueOf(scanner.nextLine());
+            balance = Double.parseDouble(scanner.nextLine());
 
-            if(balance < 0){
+            if (balance < 0) {
                 System.out.println("O saldo não pode ser negativo, tente novamente");
             }
-        }while (balance < 0);
+        } while (balance < 0);
 
         Account newAccount = new Account(UUID.randomUUID().toString(), accountName, balance);
         authenticatedUser.addAccount(newAccount);
     }
 
-    private Account selectAccount() {
+    private Account selectAccount(String label) {
         while (true) {
-            System.out.println("Selecione a conta:");
+            System.out.println(label);
             for (int i = 0; i < authenticatedUser.getAccounts().size(); i++) {
                 System.out.println((i + 1) + ") " + authenticatedUser.getAccounts().get(i).getName());
             }
@@ -245,15 +305,14 @@ public class CliHelper {
         Scanner scanner = new Scanner(System.in);
 
 
-        Account account = selectAccount();
+        Account account = selectAccount("Selecione a conta: ");
 
 
         //Teste construtor básico do investimento e utilização do método adicionarInvestimento.
         System.out.println("Digite o valor do aporte: ");
-        double contribution = Double.valueOf(scanner.nextDouble());
+        double contribution = Double.parseDouble(scanner.nextLine());
         System.out.println("Digite a rentabilidade: ");
-        double profitability = Double.valueOf(scanner.nextDouble());
-        scanner.nextLine();
+        double profitability = Double.parseDouble(scanner.nextLine());
 
         LocalDate date = getParsedDate("Digite a data do investimo (dd/mm/yyyy): ");
 
