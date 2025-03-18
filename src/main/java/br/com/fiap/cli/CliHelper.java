@@ -182,8 +182,17 @@ public class CliHelper {
     private void createAccount() {
         System.out.println("Digite o nome da conta: ");
         String accountName = scanner.nextLine();
-        System.out.println("Digite o saldo inicial: ");
-        double balance = Double.valueOf(scanner.nextLine());
+
+
+        double balance;
+        do{
+            System.out.println("Digite o saldo inicial: ");
+            balance = Double.valueOf(scanner.nextLine());
+
+            if(balance < 0){
+                System.out.println("O saldo não pode ser negativo, tente novamente");
+            }
+        }while (balance < 0);
 
         Account newAccount = new Account(UUID.randomUUID().toString(), accountName, balance);
         authenticatedUser.addAccount(newAccount);
