@@ -254,7 +254,7 @@ public class CLIHandler {
             }
         } while (balance < 0);
 
-        Account newAccount = new Account(UUID.randomUUID().toString(), accountName, balance);
+        Account newAccount = new Account(null, accountName, balance);
         authenticatedUser.addAccount(newAccount);
     }
 

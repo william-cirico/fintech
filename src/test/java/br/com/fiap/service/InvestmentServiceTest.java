@@ -1,7 +1,6 @@
 package br.com.fiap.service;
 
 import br.com.fiap.model.Account;
-import br.com.fiap.service.InvestmentService;
 
 import br.com.fiap.model.Investment;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,7 @@ class InvestmentServiceTest {
     @DisplayName("Deve permitir realizar um investimento caso tenha saldo na conta")
     void shouldAddInvestment() {
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+        Account account = new Account(null, "Conta teste", 1000);
 
         // ACT
         Investment investment = investmentService.addInvestment(account, 400, 10, LocalDate.now());
@@ -44,7 +43,7 @@ class InvestmentServiceTest {
     void shouldFailToAddInvestmentIfFromAccountDoesNotHaveEnoughBalance() {
 
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+        Account account = new Account(null, "Conta teste", 1000);
 
         // ACT + ASSERT
         assertThrows(IllegalArgumentException.class,
@@ -57,7 +56,7 @@ class InvestmentServiceTest {
     void shouldFailToAddInvestmentIfAmountIsNegative() {
 
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+        Account account = new Account(null, "Conta teste", 1000);
 
         // ACT + ASSERT
         assertThrows(
@@ -71,7 +70,7 @@ class InvestmentServiceTest {
     void shouldFailToAddInvestmentIfProfitabilityIsNegative() {
 
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+        Account account = new Account(null, "Conta teste", 1000);
 
         // ACT + ASSERT
         assertThrows(IllegalArgumentException.class,
@@ -84,7 +83,7 @@ class InvestmentServiceTest {
     void shouldFailToAddInvestmentIfDoesNotHaveEnoughBalanceAndProfitabilityIsNegative() {
 
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 1000);
+        Account account = new Account(null, "Conta teste", 1000);
 
         // ACT + ASSERT
         assertThrows(IllegalArgumentException.class,

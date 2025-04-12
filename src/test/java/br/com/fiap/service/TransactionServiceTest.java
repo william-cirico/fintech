@@ -40,7 +40,7 @@ class TransactionServiceTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.addExpense(
-                        new Account(UUID.randomUUID().toString(), "Conta teste", 100),
+                        new Account(null, "Conta teste", 100),
                         LocalDate.now(),
                         0,
                         expenseCategory
@@ -53,7 +53,7 @@ class TransactionServiceTest {
     @DisplayName("Não deve permitir adicionar despesa se o saldo for insuficiente")
     void shouldFailToAddExpenseIfAccountDoesNotHaveBalance() {
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 99);
+        Account account = new Account(null, "Conta teste", 99);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -68,7 +68,7 @@ class TransactionServiceTest {
     @DisplayName("Deve permitir adicionar uma despesa válida")
     void shouldAddExpense() {
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 100);
+        Account account = new Account(null, "Conta teste", 100);
 
         // ACT
         service.addExpense(account, LocalDate.now(), 100, expenseCategory);
@@ -93,7 +93,7 @@ class TransactionServiceTest {
     void shouldFailToAddIncomeIfAmountIsZero() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> service.addIncome(new Account(UUID.randomUUID().toString(), "Conta teste", 100), LocalDate.now(), 0),
+                () -> service.addIncome(new Account(null, "Conta teste", 100), LocalDate.now(), 0),
                 "Deveria lançar exceção ao tentar adicionar uma receita com valor zero"
         );
     }
@@ -102,7 +102,7 @@ class TransactionServiceTest {
     @DisplayName("Deve permitir adicionar uma receita válida")
     void shouldAddIncome() {
         // ARRANGE
-        Account account = new Account(UUID.randomUUID().toString(), "Conta teste", 200);
+        Account account = new Account(null, "Conta teste", 200);
 
         // ACT
         service.addIncome(account, LocalDate.now(), 100);
@@ -115,7 +115,7 @@ class TransactionServiceTest {
     @Test
     @DisplayName("Não deve permitir adicionar uma transferência se as contas de origem e destino forem iguais")
     void shouldFailToAddTransferIfAccountsAreEqual() {
-        Account account = new Account(UUID.randomUUID().toString(), "Teste", 500);
+        Account account = new Account(null, "Teste", 500);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -128,8 +128,8 @@ class TransactionServiceTest {
     @DisplayName("Não deve permitir adicionar uma transferência com o valor negativo")
     void shouldFailToAddTransferIfAmountIsNegative() {
         // ARRANGE
-        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 500);
-        Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
+        Account from = new Account(null, "Conta A", 500);
+        Account to = new Account(null, "Conta B", 100);
 
         // ACT + ASSERT
         assertThrows(
@@ -145,8 +145,8 @@ class TransactionServiceTest {
     @DisplayName("Não deve permitir adicionar uma transferência com valor zero")
     void shouldFailToAddTransferIfAmountIsZero() {
         // ARRANGE
-        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 500);
-        Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
+        Account from = new Account(null, "Conta A", 500);
+        Account to = new Account(null, "Conta B", 100);
 
         // ACT + ASSERT
         assertThrows(
@@ -162,8 +162,8 @@ class TransactionServiceTest {
     @DisplayName("Não deve permitir adicionar uma transferência se a conta origem não possui saldo suficiente")
     void shouldFailToAddTransferIfFromAccountDoesNotHaveEnoughBalance() {
         // ARRANGE
-        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 49);
-        Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
+        Account from = new Account(null, "Conta A", 49);
+        Account to = new Account(null, "Conta B", 100);
 
         // ACT + ASSERT
         assertThrows(
@@ -179,8 +179,8 @@ class TransactionServiceTest {
     @DisplayName("Deve permitir adicionar uma transferência válida")
     void shouldAddTransfer() {
         // ARRANGE
-        Account from = new Account(UUID.randomUUID().toString(), "Conta A", 100);
-        Account to = new Account(UUID.randomUUID().toString(), "Conta B", 100);
+        Account from = new Account(null, "Conta A", 100);
+        Account to = new Account(null, "Conta B", 100);
 
         // ACT + ASSERT
         assertDoesNotThrow(() -> service.addTransfer(from, to, LocalDate.now(), 100), "Não deveria lançar exceção ao adicionar uma transferência válida");

@@ -2,10 +2,9 @@ package br.com.fiap.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Account {
-    private final String id;
+    private final Long id;
     private String name;
     private double balance;
     private List<Transaction> transactions = new ArrayList<>();
@@ -13,7 +12,7 @@ public class Account {
 
 
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -25,7 +24,7 @@ public class Account {
         return name;
     }
 
-    public Account(String id, String name, double balance) {
+    public Account(Long id, String name, double balance) {
         this.id = id;
         this.balance = balance;
         this.name = name;
