@@ -1,5 +1,7 @@
 package br.com.fiap.cli;
 
+import br.com.fiap.dao.AccountDao;
+import br.com.fiap.dao.UserDao;
 import br.com.fiap.model.*;
 import br.com.fiap.service.AuthService;
 import br.com.fiap.service.InvestmentService;
@@ -16,7 +18,6 @@ public class CLIHandler {
             new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
             new ExpenseCategory(2, "Saúde", ExpenseCategoryType.ESSENTIAL)
     ));
-
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final AuthService authService;
@@ -393,6 +394,7 @@ public class CLIHandler {
                 newUsername = scanner.nextLine();
                 authenticatedUser.setUsername(newUsername);
             }
+            authService.updateUser(authenticatedUser);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

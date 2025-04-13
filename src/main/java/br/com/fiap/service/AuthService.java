@@ -1,5 +1,6 @@
 package br.com.fiap.service;
 
+import br.com.fiap.dao.UserDao;
 import br.com.fiap.model.User;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -13,6 +14,8 @@ public class AuthService {
 
     // Lista de usuários cadastrados (armazenamento temporário em memória)
     private final List<User> users = new ArrayList<>();
+
+    UserDao userDao = new UserDao();
 
     /**
      * Retorna a lista de usuários cadastrados.
@@ -47,9 +50,13 @@ public class AuthService {
 
         // Criando e armazenando o novo usuário com a senha criptografada
         User newUser = new User(name, cpf, username, hashPassword(password));
+        userDao.insert(newUser);
         users.add(newUser);
     }
 
+    public void updateUser(User user){
+        userDao.update(user);
+    }
     /**
      * Realiza o login de um usuário, verificando se o e-mail e a senha correspondem a um usuário cadastrado.
      *
@@ -107,3 +114,4 @@ public class AuthService {
         return users.stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
     }
 }
+
