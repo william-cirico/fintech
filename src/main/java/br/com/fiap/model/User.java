@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final String id;
+    private final Long id;
     private String name;
     private String cpf;
     private String username;
     private final String password;
     private final List<Account> accounts = new ArrayList<>();
 
-    public User(String id, String name, String cpf, String username, String password) {
+    public User(Long id, String name, String cpf, String username, String password) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
@@ -20,7 +20,7 @@ public class User {
         this.password = password;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
