@@ -22,6 +22,11 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getPassword());
                 stmt.executeUpdate();
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    long generatedId = generatedKeys.getLong(1);
+                    user.setId(generatedId);
+                }
             }
         } catch (SQLException e){
             throw new DatabaseException(e);

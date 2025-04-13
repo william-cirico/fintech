@@ -5,19 +5,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final Long id;
+    private Long id;
     private String name;
     private String cpf;
     private String username;
-    private final String password;
+    private String password;
     private final List<Account> accounts = new ArrayList<>();
 
-    public User(Long id, String name, String cpf, String username, String password) {
+    public User(Long id,String name, String cpf, String username, String password) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.username = username;
         this.password = password;
+    }
+
+    public User(String name, String cpf, String username, String password) {
+        this.name = name;
+        this.cpf = cpf;
+        this.username = username;
+        this.password = password;
+    }
+
+    public void setId(Long id){
+        this.id = id;
     }
 
     public Long getId() {
@@ -40,6 +51,10 @@ public class User {
     public void setCpf(String cpf) throws UnexpectedException {
         this.cpf = cpf;
     }
+
+   public void setPassword(String password) { this.password = password;}
+
+
 
     public String getUsername() {
         return username;

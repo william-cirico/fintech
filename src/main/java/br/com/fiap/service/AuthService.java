@@ -46,7 +46,7 @@ public class AuthService {
         }
 
         // Criando e armazenando o novo usuário com a senha criptografada
-        User newUser = new User(UUID.randomUUID().toString(), name, cpf, username, hashPassword(password));
+        User newUser = new User(name, cpf, username, hashPassword(password));
         users.add(newUser);
     }
 
