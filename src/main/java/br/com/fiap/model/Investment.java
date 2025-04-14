@@ -56,8 +56,29 @@ public class Investment {
         this.dueDate = dataVencimento;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
 
+    public String getInvestmentType() {
+        return investmentType;
+    }
 
+    public String getRisk() {
+        return risk;
+    }
+
+    public String getLiquidity() {
+        return liquidity;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public double getProfitability() {
+        return profitability;
+    }
 
     @Override
     public String toString() {
