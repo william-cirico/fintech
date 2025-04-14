@@ -3,6 +3,7 @@ package br.com.fiap.model;
 import java.time.LocalDate;
 
 public class Investment {
+    private Long id;
     private double amount;
     private LocalDate date;
     private String investmentType;
@@ -11,14 +12,16 @@ public class Investment {
     private LocalDate dueDate;
     private double profitability;
 
-    public Investment(double amount, double profitability, LocalDate date){
+    public Investment(Long id, double amount, double profitability, LocalDate date){
+        this.id = id;
         this.amount = amount;
         this.profitability = profitability;
         this.date = date;
     }
 
-    public Investment(double amount, double profitability, LocalDate date, String investmentType,
+    public Investment(Long id, double amount, double profitability, LocalDate date, String investmentType,
                       String risk, String liquidity, LocalDate dueDate) {
+        this.id = id;
         this.amount = amount;
         this.date = date;
         this.investmentType = investmentType;
@@ -78,6 +81,10 @@ public class Investment {
 
     public double getProfitability() {
         return profitability;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @Override
