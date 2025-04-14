@@ -67,7 +67,7 @@ public class AccountDao implements BaseDao<Account, Long> {
     }
 
     @Override
-    public void update(Account account) {
+    public Account update(Account account) {
         String sql = "UPDATE T_FIN_ACCOUNT SET NAME = ?, BALANCE  = ? WHERE ID = ? ";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
@@ -80,6 +80,7 @@ public class AccountDao implements BaseDao<Account, Long> {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+        return findById(account.getId());
     }
 
     @Override

@@ -55,7 +55,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
     }
 
     @Override
-    public void update(Investment investment) {
+    public Investment update(Investment investment) {
         String sql = "UPDATE T_FIN_INVESTMENT SET" +
                 " AMOUNT = ?, PROFITABILITY = ?, DATE = ?, TYPE = ?, RISK = ?, LIQUIDITY = ?, DUE_DATE = ? WHERE ID = ?";
 
@@ -75,6 +75,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
         }catch (SQLException e){
             throw new DatabaseException(e);
         }
+        return findById(investment.getId());
 
     }
 
