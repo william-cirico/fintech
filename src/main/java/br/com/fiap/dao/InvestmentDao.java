@@ -33,7 +33,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
     }
 
     @Override
-    public void insert(Investment investment) {
+    public Investment insert(Investment investment) {
         String sql = "INSERT INTO T_FIN_INVESTMENT (AMOUNT, DATE, TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -51,6 +51,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
         } catch (SQLException e){
             throw new DatabaseException(e);
         }
+        return findById(investment.getId());
     }
 
     @Override
