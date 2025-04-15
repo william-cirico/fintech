@@ -1,10 +1,11 @@
 package br.com.fiap.dao;
 
-import java.sql.ResultSet;
+import br.com.fiap.model.User;
+
 import java.util.List;
 
 public interface BaseDao<T, ID> {
-    void insert(T entity);
+    User insert(T entity);
     void update(T entity);
     void delete(T entity);
     T findById(ID id);

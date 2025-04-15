@@ -4,6 +4,7 @@ import br.com.fiap.exceptions.DatabaseException;
 import br.com.fiap.exceptions.EntityNotFoundException;
 import br.com.fiap.factory.ConnectionFactory;
 import br.com.fiap.model.Account;
+import br.com.fiap.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,7 +53,7 @@ public class AccountDao implements BaseDao<Account, Long> {
     }
 
     @Override
-    public void insert(Account account) {
+    public User insert(Account account) {
         String sql = "INSERT INTO T_FIN_ACCOUNT (NAME, BALANCE) VALUES (?,?)";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
@@ -64,6 +65,7 @@ public class AccountDao implements BaseDao<Account, Long> {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+        return null;
     }
 
     @Override

@@ -11,13 +11,15 @@ public class User {
     private String username;
     private String password;
     private final List<Account> accounts = new ArrayList<>();
+    private String createdAt;
 
-    public User(Long id,String name, String cpf, String username, String password) {
+    public User(Long id,String name, String cpf, String username, String password, String createdAt) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.username = username;
         this.password = password;
+        this.createdAt = createdAt;
     }
 
     public User(String name, String cpf, String username, String password) {
@@ -39,6 +41,13 @@ public class User {
         return name;
     }
 
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public void setName(String name) {
         this.name = name;
