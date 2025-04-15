@@ -57,7 +57,8 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
     @Override
     public Investment update(Investment investment) {
         String sql = "UPDATE T_FIN_INVESTMENT SET" +
-                " AMOUNT = ?, PROFITABILITY = ?, DATE = ?, TYPE = ?, RISK = ?, LIQUIDITY = ?, DUE_DATE = ? WHERE ID = ?";
+                " AMOUNT = ?, DATE = ?, TYPE = ?, RISK = ?, LIQUIDITY = ?, DUE_DATE = ?, " +
+                "PROFITABILITY = ? WHERE ID = ?";
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
@@ -124,7 +125,8 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
                 result.getString("TYPE"),
                 result.getString("RISK"),
                 result.getString("LIQUIDITY"),
-                result.getDate("DUE_DATE").toLocalDate()
+                result.getDate("DUE_DATE").toLocalDate(),
+                result.getDate("CREATED_AT").toLocalDate()
         );
 
     }

@@ -11,16 +11,16 @@ public class Investment {
     private String liquidity;
     private LocalDate dueDate;
     private double profitability;
+    private LocalDate createdAt;
 
-    public Investment(Long id, double amount, double profitability, LocalDate date){
-        this.id = id;
+    public Investment( double amount, double profitability, LocalDate date){
         this.amount = amount;
         this.profitability = profitability;
         this.date = date;
     }
 
     public Investment(Long id, double amount, double profitability, LocalDate date, String investmentType,
-                      String risk, String liquidity, LocalDate dueDate) {
+                      String risk, String liquidity, LocalDate dueDate, LocalDate createdAt) {
         this.id = id;
         this.amount = amount;
         this.date = date;
@@ -29,6 +29,8 @@ public class Investment {
         this.liquidity = liquidity;
         this.dueDate = dueDate;
         this.profitability = profitability;
+        this.createdAt = createdAt;
+
     }
 
     public void setAmount(double amount) {
@@ -81,6 +83,10 @@ public class Investment {
 
     public double getProfitability() {
         return profitability;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
