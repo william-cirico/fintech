@@ -47,6 +47,8 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getUsername());
                 stmt.setLong(5, user.getId());
+                findByCPF(user.getCpf());
+                findByUsername(user.getUsername());
             }
         } catch (SQLException e){
             throw  new DatabaseException(e);
@@ -130,7 +132,7 @@ public class UserDao implements BaseDao <User, Long>{
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setString(1, "CPF");
                 ResultSet result = stmt.executeQuery();
-                if(!result.next()){
+                if(result.next()){
                     throw new CpfAlreadyExistsException(cpf);
                 }
             }
