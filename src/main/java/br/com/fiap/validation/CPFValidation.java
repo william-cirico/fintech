@@ -11,6 +11,5 @@ public class CPFValidation implements UserValidation{
         if(userDao.findByCPF(user.getCpf())){
             throw new CpfAlreadyExistsException(user.getCpf());
         }
-
     }
 }
