@@ -1,7 +1,12 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.UserDao;
+import br.com.fiap.exceptions.PasswordsDoNotMatchException;
 import br.com.fiap.model.User;
+import br.com.fiap.validation.CPFValidation;
+import br.com.fiap.validation.PasswordMatchValidation;
+import br.com.fiap.validation.UserValidation;
+import br.com.fiap.validation.UsernameValidation;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
@@ -31,12 +36,19 @@ public class AuthService {
      * @throws IllegalArgumentException Se as senhas não forem iguais ou se o e-mail já estiver cadastrado.
      */
     public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
-        // Verificando se as senhas são iguais
-        if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("As senhas não são iguais");
+        List < UserValidation> validations = new ArrayList<>();
+        User userValidation = new User(name, cpf, username, password);
+        System.out.println("Criar usuário");
+        //Realizando validações de CPF, Username e senha
+        validations.add(new CPFValidation());
+        validations.add(new UsernameValidation());
+        validations.add(new PasswordMatchValidation(password, confirmPassword));
+        for (UserValidation validation : validations){
+            validation.validate(userValidation);
         }
+
         // Criando e armazenando o novo usuário com a senha criptografada
-        User newUser = new User(name, cpf, username, hashPassword(password));
+        User newUser = new User (name, cpf, username, hashPassword(password));
         userDao.insert(newUser);
     }
     public void updateUser(User user){
@@ -53,13 +65,13 @@ public class AuthService {
      * @throws IllegalArgumentException Se a senha estiver incorreta.
      */
     public User login(String username, String password) {
-        Optional<User> foundUser = userDao.findAll().stream().
-                filter(user-> user.getUsername().equalsIgnoreCase(username)).findFirst();
+        Optional<User> foundUser = userDao.findByUsername(username);
         if (foundUser.isEmpty()) {
             throw new NoSuchElementException("Usuário não encontrado.");
         }
 
         User user = foundUser.get();
+        user.setPassword(hashPassword(user.getPassword()));
         if (!verifyPassword(password, user.getPassword())) {
             throw new IllegalArgumentException("Usuário ou senha inválidos");
         }

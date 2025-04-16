@@ -1,29 +1,27 @@
 package br.com.fiap.dao;
 
-import br.com.fiap.exceptions.CpfAlreadyExistsException;
 import br.com.fiap.exceptions.DatabaseException;
 import br.com.fiap.exceptions.EntityNotFoundException;
-import br.com.fiap.exceptions.UsernameAlreadyExistsException;
 import br.com.fiap.factory.ConnectionFactory;
 import br.com.fiap.model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class UserDao implements BaseDao <User, Long>{
     String sql;
     @Override
     public User insert(User user) {
-        sql = "INSERT INTO T_FIN_USER (name, cpf, password, username) ?,?,?,?";
+        sql = "INSERT INTO T_FIN_USER (name, cpf, password, username) VALUES (?,?,?,?)";
         try (Connection conn = ConnectionFactory.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, user.getName());
                 stmt.setString(2, user.getCpf());
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getUsername());
-                findByCPF(user.getCpf());
-                findByUsername(user.getUsername());
+                System.out.println("Executando sql: " + sql);
                 stmt.executeUpdate();
                 ResultSet generatedKeys = stmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
@@ -49,6 +47,8 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setLong(5, user.getId());
                 findByCPF(user.getCpf());
                 findByUsername(user.getUsername());
+                System.out.println("Executando sql: " + sql);
+                stmt.executeUpdate();
             }
         } catch (SQLException e){
             throw  new DatabaseException(e);
@@ -60,6 +60,7 @@ public class UserDao implements BaseDao <User, Long>{
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setLong(1, user.getId());
+                System.out.println("Executando sql: " + sql);
                 int rowCount = stmt.executeUpdate();
                 if(rowCount == 0){
                     throw new EntityNotFoundException(user.getId());
@@ -75,10 +76,12 @@ public class UserDao implements BaseDao <User, Long>{
         try(Connection conn  = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setLong(1, id);
+                System.out.println("Executando sql: " + sql);
                 ResultSet resultSet = stmt.executeQuery();
                 if(!resultSet.next()){
                     throw new EntityNotFoundException(id);
                 }
+
                 return fromResultSet(resultSet);
             }
         } catch (SQLException e){
@@ -112,29 +115,34 @@ public class UserDao implements BaseDao <User, Long>{
                 result.getString("CREATED_AT")
         );
     }
-    private void findByUsername(String username){
+    public Optional<User> findByUsername(String username){
         sql = "SELECT * FROM T_FIN_USER WHERE USERNAME = ?";
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setString(1, username);
                 ResultSet result = stmt.executeQuery();
                 if(result.next()){
-                    throw new UsernameAlreadyExistsException(username);
+                    User user = fromResultSet(result);
+                    return Optional.of(user);
+
                 }
             }
         } catch (SQLException e){
             throw new DatabaseException(e);
         }
+        return Optional.empty();
     }
-    private void findByCPF(String cpf){
+    public boolean findByCPF(String cpf){
         sql = "SELECT * FROM T_FIN_USER WHERE CPF = ?";
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
-                stmt.setString(1, "CPF");
+                stmt.setString(1, cpf);
                 ResultSet result = stmt.executeQuery();
                 if(result.next()){
-                    throw new CpfAlreadyExistsException(cpf);
+                    return true;
+
                 }
+                return false;
             }
         } catch (SQLException e){
             throw new DatabaseException(e);
