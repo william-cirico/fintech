@@ -1,7 +1,6 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.UserDao;
-import br.com.fiap.exceptions.PasswordsDoNotMatchException;
 import br.com.fiap.model.User;
 import br.com.fiap.validation.CPFValidation;
 import br.com.fiap.validation.PasswordMatchValidation;
@@ -17,6 +16,7 @@ import java.util.*;
  */
 public class AuthService {
     UserDao userDao = new UserDao();
+    List<UserValidation> validations = new ArrayList<>();
 
     /**
      * Retorna a lista de usuários cadastrados.
@@ -36,22 +36,29 @@ public class AuthService {
      * @throws IllegalArgumentException Se as senhas não forem iguais ou se o e-mail já estiver cadastrado.
      */
     public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
-        List < UserValidation> validations = new ArrayList<>();
         User userValidation = new User(name, cpf, username, password);
-        System.out.println("Criar usuário");
+        UserValidation CPFValidation = new CPFValidation();
+        UserValidation UsernameValidation = new UsernameValidation();
+        UserValidation PasswordMatchValidation = new PasswordMatchValidation(password, confirmPassword);
         //Realizando validações de CPF, Username e senha
-        validations.add(new CPFValidation());
-        validations.add(new UsernameValidation());
-        validations.add(new PasswordMatchValidation(password, confirmPassword));
+        validations.add(CPFValidation);
+        validations.add(UsernameValidation);
+        validations.add(PasswordMatchValidation);
         for (UserValidation validation : validations){
             validation.validate(userValidation);
         }
 
         // Criando e armazenando o novo usuário com a senha criptografada
         User newUser = new User (name, cpf, username, hashPassword(password));
+        newUser.setPassword(hashPassword(newUser.getPassword()));
         userDao.insert(newUser);
     }
     public void updateUser(User user){
+        User userDataBefore = userDao.findById(user.getId());
+
+        if(userDataBefore.getPassword().equals(user.getPassword())){
+            throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual");
+        }
         user.setPassword(hashPassword(user.getPassword()));
         userDao.update(user);
     }
@@ -71,7 +78,6 @@ public class AuthService {
         }
 
         User user = foundUser.get();
-        user.setPassword(hashPassword(user.getPassword()));
         if (!verifyPassword(password, user.getPassword())) {
             throw new IllegalArgumentException("Usuário ou senha inválidos");
         }

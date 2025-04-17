@@ -21,13 +21,10 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setString(2, user.getCpf());
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getUsername());
-                System.out.println("Executando sql: " + sql);
                 stmt.executeUpdate();
                 ResultSet generatedKeys = stmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
-                    long generatedId = generatedKeys.getLong(1);
-                    user.setId(generatedId);
-                    return findById(generatedId);
+                    return findById(user.getId());
                 }
             }
         } catch (SQLException e) {
@@ -36,7 +33,7 @@ public class UserDao implements BaseDao <User, Long>{
         return null;
     }
     @Override
-    public void update(User user)  {
+    public User update(User user)  {
         sql = "UPDATE T_FIN_USER SET NAME = ?, CPF = ?, PASSWORD = ?, USERNAME = ? WHERE ID = ?";
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -47,8 +44,8 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setLong(5, user.getId());
                 findByCPF(user.getCpf());
                 findByUsername(user.getUsername());
-                System.out.println("Executando sql: " + sql);
                 stmt.executeUpdate();
+                return findById(user.getId());
             }
         } catch (SQLException e){
             throw  new DatabaseException(e);
@@ -60,7 +57,6 @@ public class UserDao implements BaseDao <User, Long>{
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setLong(1, user.getId());
-                System.out.println("Executando sql: " + sql);
                 int rowCount = stmt.executeUpdate();
                 if(rowCount == 0){
                     throw new EntityNotFoundException(user.getId());
@@ -76,12 +72,10 @@ public class UserDao implements BaseDao <User, Long>{
         try(Connection conn  = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setLong(1, id);
-                System.out.println("Executando sql: " + sql);
                 ResultSet resultSet = stmt.executeQuery();
                 if(!resultSet.next()){
                     throw new EntityNotFoundException(id);
                 }
-
                 return fromResultSet(resultSet);
             }
         } catch (SQLException e){
@@ -112,7 +106,7 @@ public class UserDao implements BaseDao <User, Long>{
                 result.getString("CPF"),
                 result.getString("PASSWORD"),
                 result.getString("USERNAME"),
-                result.getString("CREATED_AT")
+                result.getTimestamp("CREATED_AT").toLocalDateTime()
         );
     }
     public Optional<User> findByUsername(String username){
@@ -130,7 +124,7 @@ public class UserDao implements BaseDao <User, Long>{
         } catch (SQLException e){
             throw new DatabaseException(e);
         }
-        return Optional.empty();
+        return null;
     }
     public boolean findByCPF(String cpf){
         sql = "SELECT * FROM T_FIN_USER WHERE CPF = ?";
@@ -140,7 +134,6 @@ public class UserDao implements BaseDao <User, Long>{
                 ResultSet result = stmt.executeQuery();
                 if(result.next()){
                     return true;
-
                 }
                 return false;
             }
