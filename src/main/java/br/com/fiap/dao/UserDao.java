@@ -124,7 +124,7 @@ public class UserDao implements BaseDao <User, Long>{
         } catch (SQLException e){
             throw new DatabaseException(e);
         }
-        return null;
+        return Optional.empty();
     }
     public boolean findByCPF(String cpf){
         sql = "SELECT * FROM T_FIN_USER WHERE CPF = ?";

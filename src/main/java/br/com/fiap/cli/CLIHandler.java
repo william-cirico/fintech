@@ -356,7 +356,7 @@ public class CLIHandler {
         String password = scanner.nextLine();
 
         try {
-            authenticatedUser = authService.login(authenticatedUser.getName(), password);
+            authenticatedUser = authService.login(authenticatedUser.getUsername(), password);
             System.out.println("Senha correta, digite os novos valores:");
 
             System.out.println("Deseja alterar o nome na conta? (Sim/Não)");
@@ -374,14 +374,16 @@ public class CLIHandler {
                 authenticatedUser.setCpf(newCpf);
             }
             System.out.println("Deseja alterar a senha? (Sim/Não)");
+            boolean decisionAlterPassword = false;
             String alterPassword = String.valueOf(scanner.nextLine());
             if(alterPassword.equalsIgnoreCase("Sim")){
+                decisionAlterPassword = true;
                 System.out.println("Digite a nova senha:");
                 newPassword = scanner.nextLine();
                 System.out.println("Confirme a nova senha:");
                 confirmationNewPassword = scanner.nextLine();
 
-                if(alterPassword != confirmationNewPassword){
+                if(!newPassword.equals(confirmationNewPassword)){
                     System.out.println("As senhas não coincidem, o processo será reiniciado.");
                     updateUser();
                 }
@@ -394,7 +396,7 @@ public class CLIHandler {
                 newUsername = scanner.nextLine();
                 authenticatedUser.setUsername(newUsername);
             }
-            authService.updateUser(authenticatedUser);
+            authService.updateUser(authenticatedUser, decisionAlterPassword);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

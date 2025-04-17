@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final Long id;
+    private Long id;
     private String name;
     private String cpf;
     private String username;
@@ -14,13 +14,20 @@ public class User {
     private final List<Account> accounts = new ArrayList<>();
     private LocalDateTime createdAt;
 
-    public User(Long id,String name, String cpf, String username, String password, LocalDateTime createdAt) {
+    public User(Long id,String name, String cpf, String password, String username, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.username = username;
         this.password = password;
         this.createdAt = createdAt;
+
+    }
+    public User(String name, String cpf, String username, String password){
+        this.name = name;
+        this.cpf = cpf;
+        this.username = username;
+        this.password = password;
     }
 
     public Long getId() {

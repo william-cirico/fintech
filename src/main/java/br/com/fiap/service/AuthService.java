@@ -50,14 +50,15 @@ public class AuthService {
 
         // Criando e armazenando o novo usuário com a senha criptografada
         User newUser = new User (name, cpf, username, hashPassword(password));
-        newUser.setPassword(hashPassword(newUser.getPassword()));
         userDao.insert(newUser);
     }
-    public void updateUser(User user){
+    public void updateUser(User user, boolean decisionAlterPassword){
         User userDataBefore = userDao.findById(user.getId());
 
-        if(userDataBefore.getPassword().equals(user.getPassword())){
-            throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual");
+        if(decisionAlterPassword){
+            if(userDataBefore.getPassword().equals(user.getPassword())){
+                throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual");
+            }
         }
         user.setPassword(hashPassword(user.getPassword()));
         userDao.update(user);
