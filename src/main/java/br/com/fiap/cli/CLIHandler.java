@@ -1,5 +1,7 @@
 package br.com.fiap.cli;
 
+import br.com.fiap.dao.AccountDao;
+import br.com.fiap.dao.UserDao;
 import br.com.fiap.model.*;
 import br.com.fiap.service.AuthService;
 import br.com.fiap.service.InvestmentService;
@@ -16,7 +18,6 @@ public class CLIHandler {
             new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
             new ExpenseCategory(2, "Saúde", ExpenseCategoryType.ESSENTIAL)
     ));
-
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final AuthService authService;
@@ -128,7 +129,8 @@ public class CLIHandler {
                 System.out.println("4 - Adicionar Transferência");
                 System.out.println("5 - Adicionar Investimento");
                 System.out.println("6 - Relatórios");
-                System.out.println("7 - Logout");
+                System.out.println("7 - Alterar dados");
+                System.out.println("8 - Logout");
                 System.out.print("Opção: ");
             }
 
@@ -148,7 +150,8 @@ public class CLIHandler {
                     case 4 -> createTransfer();
                     case 5 -> createInvestment();
                     case 6 -> showReportsMenu();
-                    case 7 -> {
+                    case 7 -> updateUser();
+                    case 8 -> {
                         authenticatedUser = null;
                         System.out.println("Logout realizado!");
                         return;
@@ -339,6 +342,63 @@ public class CLIHandler {
             System.out.println("Dados não preenchidos permanecerão vazios.");
         } else {
             System.out.println("Resposta inválida. Considerando como 'Não'.");
+        }
+    }
+
+    private void updateUser() {
+        String newName;
+        String newCpf;
+        String newPassword;
+        String confirmationNewPassword;
+        String newUsername;
+        System.out.println("--- Alteração dos dados ---");
+        System.out.println("Digite a sua senha atual:");
+        String password = scanner.nextLine();
+
+        try {
+            authenticatedUser = authService.login(authenticatedUser.getUsername(), password);
+            System.out.println("Senha correta, digite os novos valores:");
+
+            System.out.println("Deseja alterar o nome na conta? (Sim/Não)");
+            String alterName = String.valueOf(scanner.nextLine());
+            if(alterName.equalsIgnoreCase("Sim")){
+                System.out.println("Digite o novo nome:");
+                newName = scanner.nextLine();
+                authenticatedUser.setName(newName);
+            }
+            System.out.println("Deseja alterar o cpf? (Sim/Não)");
+            String alterCpf = String.valueOf(scanner.nextLine());
+            if(alterCpf.equalsIgnoreCase("Sim")){
+                System.out.println("Digite o novo cpf:");
+                newCpf = scanner.nextLine();
+                authenticatedUser.setCpf(newCpf);
+            }
+            System.out.println("Deseja alterar a senha? (Sim/Não)");
+            boolean decisionAlterPassword = false;
+            String alterPassword = String.valueOf(scanner.nextLine());
+            if(alterPassword.equalsIgnoreCase("Sim")){
+                decisionAlterPassword = true;
+                System.out.println("Digite a nova senha:");
+                newPassword = scanner.nextLine();
+                System.out.println("Confirme a nova senha:");
+                confirmationNewPassword = scanner.nextLine();
+
+                if(!newPassword.equals(confirmationNewPassword)){
+                    System.out.println("As senhas não coincidem, o processo será reiniciado.");
+                    updateUser();
+                }
+                authenticatedUser.setPassword(newPassword);
+            }
+            System.out.println("Deseja alterar o username? (Sim/Não)");
+            String alterUsername = String.valueOf(scanner.nextLine());
+            if(alterUsername.equalsIgnoreCase("Sim")){
+                System.out.println("Digite o novo username:");
+                newUsername = scanner.nextLine();
+                authenticatedUser.setUsername(newUsername);
+            }
+            authService.updateUser(authenticatedUser, decisionAlterPassword);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 }

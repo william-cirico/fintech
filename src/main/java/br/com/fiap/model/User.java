@@ -1,26 +1,36 @@
 package br.com.fiap.model;
 
 import java.rmi.UnexpectedException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private final String id;
+    private Long id;
     private String name;
     private String cpf;
     private String username;
-    private final String password;
+    private String password;
     private final List<Account> accounts = new ArrayList<>();
+    private LocalDateTime createdAt;
 
-    public User(String id, String name, String cpf, String username, String password) {
+    public User(Long id,String name, String cpf, String password, String username, LocalDateTime createdAt) {
         this.id = id;
+        this.name = name;
+        this.cpf = cpf;
+        this.username = username;
+        this.password = password;
+        this.createdAt = createdAt;
+
+    }
+    public User(String name, String cpf, String username, String password){
         this.name = name;
         this.cpf = cpf;
         this.username = username;
         this.password = password;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
@@ -28,6 +38,13 @@ public class User {
         return name;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -40,6 +57,10 @@ public class User {
     public void setCpf(String cpf) throws UnexpectedException {
         this.cpf = cpf;
     }
+
+   public void setPassword(String password) { this.password = password;}
+
+
 
     public String getUsername() {
         return username;

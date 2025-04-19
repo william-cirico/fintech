@@ -5,3 +5,4 @@ public class EntityNotFoundException extends RuntimeException {
         super("Não foi possível encontrar o recurso com o ID: " + id);
     }
 }
+
