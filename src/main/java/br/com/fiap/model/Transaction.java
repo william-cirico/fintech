@@ -8,6 +8,7 @@ public abstract class Transaction {
     private LocalDate date;
     private String description;
     private String observations;
+
     private final TransactionType type;
 
     public Transaction(String id, double amount, LocalDate date, String description, TransactionType type) {
