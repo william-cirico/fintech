@@ -42,7 +42,7 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getUsername());
                 stmt.setLong(5, user.getId());
-                findByCPF(user.getCpf());
+                existsByCPF(user.getCpf());
                 findByUsername(user.getUsername());
                 stmt.executeUpdate();
                 return findById(user.getId());
@@ -126,7 +126,7 @@ public class UserDao implements BaseDao <User, Long>{
         }
         return Optional.empty();
     }
-    public boolean findByCPF(String cpf){
+    public boolean existsByCPF(String cpf){
         sql = "SELECT * FROM T_FIN_USER WHERE CPF = ?";
         try(Connection conn = ConnectionFactory.getConnection()){
             try(PreparedStatement stmt = conn.prepareStatement(sql)){

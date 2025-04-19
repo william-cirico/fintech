@@ -10,7 +10,7 @@ public class CPFValidation implements UserValidation{
     @Override
     public void validate(User user) {
 
-        if(userDao.findByCPF(user.getCpf())){
+        if(userDao.existsByCPF(user.getCpf())){
             throw new CpfAlreadyExistsException(user.getCpf());
         }
     }

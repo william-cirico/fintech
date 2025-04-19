@@ -16,8 +16,6 @@ import java.util.*;
  */
 public class AuthService {
     UserDao userDao = new UserDao();
-    List<UserValidation> validations = new ArrayList<>();
-
     /**
      * Retorna a lista de usuários cadastrados.
      *
@@ -36,6 +34,12 @@ public class AuthService {
      * @throws IllegalArgumentException Se as senhas não forem iguais ou se o e-mail já estiver cadastrado.
      */
     public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
+        List<UserValidation> validations = new ArrayList<>(List.of(
+                new CPFValidation(),
+                new UsernameValidation(),
+                new PasswordMatchValidation(password, confirmPassword)
+        ));
+
         User userValidation = new User(name, cpf, username, password);
         UserValidation CPFValidation = new CPFValidation();
         UserValidation UsernameValidation = new UsernameValidation();
