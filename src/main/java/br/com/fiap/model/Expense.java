@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 public class Expense extends Transaction {
     private ExpenseCategory category;
 
-    public Expense(String id, double amount, LocalDate date, String description, ExpenseCategory category) {
+    public Expense(Long id, double amount, LocalDate date, String description, ExpenseCategory category) {
         super(id, amount, date, description, TransactionType.EXPENSE);
         this.category = category;
     }

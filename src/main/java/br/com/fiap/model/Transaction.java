@@ -3,14 +3,14 @@ package br.com.fiap.model;
 import java.time.LocalDate;
 
 public abstract class Transaction {
-    private String id;
+    private Long id;
     private double amount;
     private LocalDate date;
     private String description;
     private String observations;
     private final TransactionType type;
 
-    public Transaction(String id, double amount, LocalDate date, String description, TransactionType type) {
+    public Transaction(Long id, double amount, LocalDate date, String description, TransactionType type) {
         this.id = id;
         this.amount = amount;
         this.date = date;
@@ -18,7 +18,7 @@ public abstract class Transaction {
         this.type = type;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
