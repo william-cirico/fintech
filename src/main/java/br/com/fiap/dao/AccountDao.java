@@ -4,7 +4,6 @@ import br.com.fiap.exceptions.DatabaseException;
 import br.com.fiap.exceptions.EntityNotFoundException;
 import br.com.fiap.factory.ConnectionFactory;
 import br.com.fiap.model.Account;
-import br.com.fiap.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -83,7 +82,7 @@ public class AccountDao implements BaseDao<Account, Long> {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-        return findById(account.getId());
+
     }
 
     @Override
@@ -107,7 +106,46 @@ public class AccountDao implements BaseDao<Account, Long> {
         return new Account(
                 result.getLong("ID"),
                 result.getString("NAME"),
-                result.getDouble("BALANCE")
+                result.getDouble("BALANCE"),
+                result.getTimestamp("CREATED_AT").toLocalDateTime(),
+                result.getLong("USER_ID")
         );
     }
+
+    public boolean existsByName(String name) {
+        String sql = "SELECT * FROM T_FIN_ACCOUNT WHERE UPPER(NAME) = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, name);
+                ResultSet resultSet = stmt.executeQuery();
+                if (!resultSet.next()) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
+
+    public List<Account> findAllById(Long user_id) {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM T_FIN_ACCOUNT WHERE USER_ID = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection()) {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setLong(1, user_id);
+                ResultSet result = stmt.executeQuery();
+                while (result.next()) {
+                    accounts.add(fromResultSet(result));
+                }
+            }
+            return accounts;
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+    }
 }
+
+

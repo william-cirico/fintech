@@ -34,8 +34,8 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
 
     @Override
     public Investment insert(Investment investment) {
-        String sql = "INSERT INTO T_FIN_INVESTMENT (AMOUNT, DATE, TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO T_FIN_INVESTMENT (AMOUNT, DATE, TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY, ACCOUNT_ID)" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?,?)";
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
@@ -46,6 +46,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
                 stm.setString(5, investment.getLiquidity());
                 stm.setDate(6, java.sql.Date.valueOf(investment.getDueDate()));
                 stm.setDouble(7, investment.getProfitability());
+                stm.setLong(8, investment.getAccountID());
                 stm.executeUpdate();
             }
         } catch (SQLException e){
@@ -69,7 +70,6 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
                 stm.setString(5, investment.getLiquidity());
                 stm.setDate(6, java.sql.Date.valueOf(investment.getDueDate()));
                 stm.setDouble(7, investment.getProfitability());
-                stm.setLong(8, investment.getId());
                 stm.executeUpdate();
             }
 
@@ -126,7 +126,7 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
                 result.getString("RISK"),
                 result.getString("LIQUIDITY"),
                 result.getDate("DUE_DATE").toLocalDate(),
-                result.getDate("CREATED_AT").toLocalDate()
+                result.getTimestamp("CREATED_AT").toLocalDateTime()
         );
 
     }

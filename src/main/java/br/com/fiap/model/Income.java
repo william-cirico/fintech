@@ -1,11 +1,12 @@
 package br.com.fiap.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Income extends Transaction {
-    public Income(Long id, double amount, LocalDate date, String description) {
-        super(id, amount, date, description, TransactionType.INCOME);
+    public Income(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt) {
+        super(id, amount, date, description, observations, createdAt, TransactionType.INCOME);
     }
 
     @Override

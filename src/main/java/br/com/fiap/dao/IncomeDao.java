@@ -34,31 +34,34 @@ public class IncomeDao implements BaseDao<Income, Long>{
 
     @Override
     public Income insert(Income income) {
-        String sql = "INSERT INTO T_FIN_INCOME (AMOUNT, DATE, DESCRIPTION) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO T_FIN_INCOME (AMOUNT, DATE, DESCRIPTION, OBSERVATIONS) VALUES (?, ?, ?, ?)";
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
                 stm.setDouble(1, income.getAmount());
                 stm.setDate(2, java.sql.Date.valueOf(income.getDate()));
                 stm.setString(3, income.getDescription());
+                stm.setString(4, income.getObservations());
             }
+            return findById(income.getId());
         }catch (SQLException e){
             throw new DatabaseException(e);
         }
-        return findById(income.getId());
+
     }
 
     @Override
     public Income update(Income income) {
         String sql = "UPDATE T_FIN_INCOME SET" +
-                "AMOUNT = ?, DATE = ?, DESCRIPTION = ? WHERE ID = ?";
+                "AMOUNT = ?, DATE = ?, DESCRIPTION = ?, OBSERVATIONS= ? WHERE ID = ?";
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
                 stm.setDouble(1, income.getAmount());
                 stm.setDate(2, java.sql.Date.valueOf(income.getDate()));
                 stm.setString(3, income.getDescription());
-                stm.setLong(4, income.getId());
+                stm.setString(4, income.getObservations());
+                stm.setLong(5, income.getId());
 
                 stm.executeUpdate();
             }
@@ -110,9 +113,9 @@ public class IncomeDao implements BaseDao<Income, Long>{
                 result.getLong("ID"),
                 result.getDouble("AMOUNT"),
                 result.getDate("DATE").toLocalDate(),
-                result.getString("DESCRIPTION")
+                result.getString("DESCRIPTION"),
+                result.getString("OBSERVATIONS"),
+                result.getTimestamp("CREATED_AT").toLocalDateTime()
         );
     }
-
-
 }

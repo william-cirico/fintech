@@ -2,11 +2,9 @@ package br.com.fiap.cli;
 
 import br.com.fiap.dao.AccountDao;
 import br.com.fiap.dao.UserDao;
+import br.com.fiap.exceptions.OptionalAccountInvalidException;
 import br.com.fiap.model.*;
-import br.com.fiap.service.AuthService;
-import br.com.fiap.service.InvestmentService;
-import br.com.fiap.service.ReportService;
-import br.com.fiap.service.TransactionService;
+import br.com.fiap.service.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,8 +13,8 @@ import java.util.*;
 public class CLIHandler {
     private final Scanner scanner = new Scanner(System.in);
     private final List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
-            new ExpenseCategory(1, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
-            new ExpenseCategory(2, "Saúde", ExpenseCategoryType.ESSENTIAL)
+            new ExpenseCategory(null, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
+            new ExpenseCategory(null, "Saúde", ExpenseCategoryType.ESSENTIAL)
     ));
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -24,15 +22,9 @@ public class CLIHandler {
     private final TransactionService transactionService;
     private final InvestmentService investmentService;
     private final ReportService reportService;
+    private final AccountService accountService;
 
     private User authenticatedUser = null;
-
-    public CLIHandler(TransactionService transactionService, AuthService authService, InvestmentService investmentService, ReportService reportService) {
-        this.transactionService = transactionService;
-        this.authService = authService;
-        this.investmentService = investmentService;
-        this.reportService = reportService;
-    }
 
     public void run() {
         while (true) {
@@ -51,7 +43,13 @@ public class CLIHandler {
                 default -> System.out.println("Opção inválida");
             }
         }
-    }
+    }public CLIHandler(TransactionService transactionService, AuthService authService, InvestmentService investmentService, ReportService reportService, AccountService accountService) {
+             this.transactionService = transactionService;
+             this.authService = authService;
+             this.investmentService = investmentService;
+             this.reportService = reportService;
+             this.accountService = accountService;
+         }
 
     private ExpenseCategory selectExpenseCategory() {
         while (true) {
@@ -241,7 +239,6 @@ public class CLIHandler {
         }
     }
 
-
     private void createAccount() {
         System.out.println("Digite o nome da conta: ");
         String accountName = scanner.nextLine();
@@ -257,26 +254,31 @@ public class CLIHandler {
             }
         } while (balance < 0);
 
-        Account newAccount = new Account(null, accountName, balance);
-        authenticatedUser.addAccount(newAccount);
+        Account newAccount = new Account(null, accountName, balance, null, null);
+        accountService.addAccount(newAccount);
     }
 
     private Account selectAccount(String label) {
         while (true) {
             System.out.println(label);
-            for (int i = 0; i < authenticatedUser.getAccounts().size(); i++) {
-                System.out.println((i + 1) + ") " + authenticatedUser.getAccounts().get(i).getName());
+            List<Account> accounts = accountService.findUserAccounts(authenticatedUser);
+
+            for(Account account: accounts){
+                System.out.println("Id: " + account.getId());
+                System.out.println("Name: "+ account.getName());
             }
+
             System.out.println("Opção desejada:");
             int option = scanner.nextInt();
             scanner.nextLine();
 
-            if (option > authenticatedUser.getAccounts().size() || option < 0) {
-                System.out.println("Opção inválida");
-                continue;
-            }
+            // Verificando se o ID selecionado existe nas contas
+            Optional<Account> selectedAccount = accounts.stream().filter(a -> a.getId() == option).findFirst();
 
-            return authenticatedUser.getAccounts().get(option - 1);
+            if (selectedAccount.isEmpty()) {
+                throw new OptionalAccountInvalidException(option);
+            }
+            return selectedAccount.get();
         }
     }
 
@@ -300,9 +302,7 @@ public class CLIHandler {
         }
     }
 
-
     private void createInvestment() {
-
         System.out.println("-----------------------------------------------------------------------");
         System.out.println("Account View");
         Scanner scanner = new Scanner(System.in);
@@ -319,7 +319,7 @@ public class CLIHandler {
 
         LocalDate date = getParsedDate("Digite a data do investimo (dd/mm/yyyy): ");
 
-        Investment investment = investmentService.addInvestment(account, contribution, profitability, date);
+
 
         // Informaçōes adicionais sobre o investimento
         System.out.println("Gostaria de adicionar mais informaçōes sobre o investimento? (Sim ou Não)");
@@ -327,16 +327,14 @@ public class CLIHandler {
         if (resposta.equalsIgnoreCase("Sim")) {
             System.out.println("Tipo do investimento: ");
             String type = scanner.nextLine();
-            investment.setInvestmentType(type);
             System.out.println("Risco do investimento");
             String risk = scanner.nextLine();
-            investment.setRisk(risk);
             System.out.println("Liquidez");
-            String liquid = scanner.nextLine();
-            investment.setLiquidity(liquid);
+            String liquidity = scanner.nextLine();
 
             LocalDate dueDate = getParsedDate("Digite a data de vencimento (dd/mm/yyyy): ");
-            investment.setDueDate(dueDate);
+
+            Investment investment = investmentService.addInvestment(account, contribution, date, type, risk, liquidity, dueDate,  profitability, account.getId());
 
         } else if (resposta.equalsIgnoreCase("Não") || resposta.equalsIgnoreCase("Nao")) {
             System.out.println("Dados não preenchidos permanecerão vazios.");
@@ -396,7 +394,8 @@ public class CLIHandler {
                 newUsername = scanner.nextLine();
                 authenticatedUser.setUsername(newUsername);
             }
-            authService.updateUser(authenticatedUser, decisionAlterPassword);
+            authService.
+                    updateUser(authenticatedUser, decisionAlterPassword);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
