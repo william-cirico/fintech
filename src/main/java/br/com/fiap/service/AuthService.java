@@ -1,6 +1,11 @@
 package br.com.fiap.service;
 
+import br.com.fiap.dao.UserDao;
 import br.com.fiap.model.User;
+import br.com.fiap.validation.CPFValidation;
+import br.com.fiap.validation.PasswordMatchValidation;
+import br.com.fiap.validation.UserValidation;
+import br.com.fiap.validation.UsernameValidation;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;
@@ -10,18 +15,12 @@ import java.util.*;
  * incluindo registro, login e armazenamento seguro de senhas.
  */
 public class AuthService {
-
-    // Lista de usuários cadastrados (armazenamento temporário em memória)
-    private final List<User> users = new ArrayList<>();
-
+    UserDao userDao = new UserDao();
     /**
      * Retorna a lista de usuários cadastrados.
      *
      * @return Lista de usuários registrados.
      */
-    public List<User> getUsers() {
-        return users;
-    }
 
     /**
      * Registra um novo usuário no sistema, verificando se o e-mail já está cadastrado e garantindo
@@ -35,21 +34,39 @@ public class AuthService {
      * @throws IllegalArgumentException Se as senhas não forem iguais ou se o e-mail já estiver cadastrado.
      */
     public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
-        // Verificando se as senhas são iguais
-        if (!password.equals(confirmPassword)) {
-            throw new IllegalArgumentException("As senhas não são iguais");
-        }
+        List<UserValidation> validations = new ArrayList<>(List.of(
+                new CPFValidation(),
+                new UsernameValidation(),
+                new PasswordMatchValidation(password, confirmPassword)
+        ));
 
-        // Verificando se já existe um usuário cadastrado com o e-mail
-        if (usernameAlreadyRegistered(username)) {
-            throw new IllegalArgumentException("E-mail " + username + " já está cadastrado");
+        User userValidation = new User(name, cpf, username, password);
+        UserValidation CPFValidation = new CPFValidation();
+        UserValidation UsernameValidation = new UsernameValidation();
+        UserValidation PasswordMatchValidation = new PasswordMatchValidation(password, confirmPassword);
+        //Realizando validações de CPF, Username e senha
+        validations.add(CPFValidation);
+        validations.add(UsernameValidation);
+        validations.add(PasswordMatchValidation);
+        for (UserValidation validation : validations){
+            validation.validate(userValidation);
         }
 
         // Criando e armazenando o novo usuário com a senha criptografada
-        User newUser = new User(UUID.randomUUID().toString(), name, cpf, username, hashPassword(password));
-        users.add(newUser);
+        User newUser = new User (name, cpf, username, hashPassword(password));
+        userDao.insert(newUser);
     }
+    public void updateUser(User user, boolean decisionAlterPassword){
+        User userDataBefore = userDao.findById(user.getId());
 
+        if(decisionAlterPassword){
+            if(userDataBefore.getPassword().equals(user.getPassword())){
+                throw new IllegalArgumentException("A nova senha deve ser diferente da senha atual");
+            }
+        }
+        user.setPassword(hashPassword(user.getPassword()));
+        userDao.update(user);
+    }
     /**
      * Realiza o login de um usuário, verificando se o e-mail e a senha correspondem a um usuário cadastrado.
      *
@@ -60,10 +77,7 @@ public class AuthService {
      * @throws IllegalArgumentException Se a senha estiver incorreta.
      */
     public User login(String username, String password) {
-        Optional<User> foundUser = users.stream()
-                .filter(u -> u.getUsername().equalsIgnoreCase(username))
-                .findFirst();
-
+        Optional<User> foundUser = userDao.findByUsername(username);
         if (foundUser.isEmpty()) {
             throw new NoSuchElementException("Usuário não encontrado.");
         }
@@ -96,14 +110,11 @@ public class AuthService {
     private String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
     }
-
     /**
      * Verifica se um e-mail já foi cadastrado no sistema.
      *
      * @param username E-mail a ser verificado.
      * @return {@code true} se o e-mail já estiver cadastrado, {@code false} caso contrário.
      */
-    private boolean usernameAlreadyRegistered(String username) {
-        return users.stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
-    }
 }
+

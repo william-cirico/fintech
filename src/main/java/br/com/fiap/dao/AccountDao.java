@@ -4,6 +4,7 @@ import br.com.fiap.exceptions.DatabaseException;
 import br.com.fiap.exceptions.EntityNotFoundException;
 import br.com.fiap.factory.ConnectionFactory;
 import br.com.fiap.model.Account;
+import br.com.fiap.model.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,7 +53,7 @@ public class AccountDao implements BaseDao<Account, Long> {
     }
 
     @Override
-    public void insert(Account account) {
+    public Account insert(Account account) {
         String sql = "INSERT INTO T_FIN_ACCOUNT (NAME, BALANCE) VALUES (?,?)";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
@@ -60,6 +61,7 @@ public class AccountDao implements BaseDao<Account, Long> {
                 stmt.setString(1, account.getName());
                 stmt.setDouble(2, account.getBalance());
                 stmt.executeUpdate();
+                return (findById(account.getId()));
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -67,7 +69,7 @@ public class AccountDao implements BaseDao<Account, Long> {
     }
 
     @Override
-    public void update(Account account) {
+    public Account update(Account account) {
         String sql = "UPDATE T_FIN_ACCOUNT SET NAME = ?, BALANCE  = ? WHERE ID = ? ";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
@@ -76,10 +78,12 @@ public class AccountDao implements BaseDao<Account, Long> {
                 stmt.setDouble(2, account.getBalance());
                 stmt.setLong(3, account.getId());
                 stmt.executeUpdate();
+                return (findById(account.getId()));
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+        return findById(account.getId());
     }
 
     @Override

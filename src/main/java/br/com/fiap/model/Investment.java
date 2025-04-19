@@ -3,6 +3,7 @@ package br.com.fiap.model;
 import java.time.LocalDate;
 
 public class Investment {
+    private Long id;
     private double amount;
     private LocalDate date;
     private String investmentType;
@@ -10,15 +11,17 @@ public class Investment {
     private String liquidity;
     private LocalDate dueDate;
     private double profitability;
+    private LocalDate createdAt;
 
-    public Investment(double amount, double profitability, LocalDate date){
+    public Investment( double amount, double profitability, LocalDate date){
         this.amount = amount;
         this.profitability = profitability;
         this.date = date;
     }
 
-    public Investment(double amount, double profitability, LocalDate date, String investmentType,
-                      String risk, String liquidity, LocalDate dueDate) {
+    public Investment(Long id, double amount, double profitability, LocalDate date, String investmentType,
+                      String risk, String liquidity, LocalDate dueDate, LocalDate createdAt) {
+        this.id = id;
         this.amount = amount;
         this.date = date;
         this.investmentType = investmentType;
@@ -26,6 +29,8 @@ public class Investment {
         this.liquidity = liquidity;
         this.dueDate = dueDate;
         this.profitability = profitability;
+        this.createdAt = createdAt;
+
     }
 
     public void setAmount(double amount) {
@@ -56,8 +61,37 @@ public class Investment {
         this.dueDate = dataVencimento;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
 
+    public String getInvestmentType() {
+        return investmentType;
+    }
 
+    public String getRisk() {
+        return risk;
+    }
+
+    public String getLiquidity() {
+        return liquidity;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public double getProfitability() {
+        return profitability;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
 
     @Override
     public String toString() {
