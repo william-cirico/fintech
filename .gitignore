@@ -128,3 +128,10 @@ nb-configuration.xml
 ## Miscellaneous
 ##############################
 *.log
+
+##############################
+## Env
+##############################
+.env.test
+.env.development
+.env.production
