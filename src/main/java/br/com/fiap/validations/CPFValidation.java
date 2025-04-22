@@ -1,4 +1,4 @@
-package br.com.fiap.validation;
+package br.com.fiap.validations;
 
 import br.com.fiap.dao.UserDao;
 import br.com.fiap.exceptions.CpfAlreadyExistsException;

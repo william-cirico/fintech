@@ -1,6 +1,7 @@
 package br.com.fiap.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Investment {
     private Long id;
@@ -11,16 +12,27 @@ public class Investment {
     private String liquidity;
     private LocalDate dueDate;
     private double profitability;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
+    private long account_id;
 
     public Investment( double amount, double profitability, LocalDate date){
         this.amount = amount;
         this.profitability = profitability;
         this.date = date;
     }
+    public Investment(double amount, LocalDate date, String investmentType, String risk, String liquidity, LocalDate dueDate, double profitability, long account_id){
+        this.amount = amount;
+        this.date = date;
+        this.investmentType = investmentType;
+        this.risk = risk;
+        this.liquidity = liquidity;
+        this.dueDate = dueDate;
+        this.profitability = profitability;
+        this.account_id = account_id;
+    }
 
     public Investment(Long id, double amount, double profitability, LocalDate date, String investmentType,
-                      String risk, String liquidity, LocalDate dueDate, LocalDate createdAt) {
+                      String risk, String liquidity, LocalDate dueDate, LocalDateTime createdAt) {
         this.id = id;
         this.amount = amount;
         this.date = date;
@@ -32,6 +44,12 @@ public class Investment {
         this.createdAt = createdAt;
 
     }
+
+    public void setAccount_id(long account_id) {
+        this.account_id = account_id;
+    }
+
+    public Long getAccountID() { return account_id;}
 
     public void setAmount(double amount) {
         this.amount = amount;
@@ -85,7 +103,7 @@ public class Investment {
         return profitability;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 

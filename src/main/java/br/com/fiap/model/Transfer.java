@@ -1,25 +1,28 @@
 package br.com.fiap.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Transfer extends Transaction {
-    private final Account from;
-    private final Account to;
+    private final Account destinationAccount;
+    private final Long destinationAccountId;
 
-    public Transfer(String id, double amount, LocalDate date, String description, TransactionType type, Account from, Account to) {
-        super(id, amount, date, description, type);
-        this.from = from;
-        this.to = to;
+    public Transfer(Long id, double amount, LocalDate date, String description, String observations,  LocalDateTime createdAt, Account originAccount, Account destinationAccount) {
+        super(id, amount, date, description, observations, createdAt, TransactionType.TRANSFER, originAccount.getId());
+        this.destinationAccount = destinationAccount;
+        this.destinationAccountId = destinationAccount.getId();
     }
 
-    public Account getFrom() {
-        return from;
+    public Transfer(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt, Long originAccountId, Long destinationAccountId) {
+        super(id, amount, date, description, observations, createdAt, TransactionType.TRANSFER, originAccountId);
+        this.destinationAccount = null;
+        this.destinationAccountId = destinationAccountId;
     }
 
-    public Account getTo() {
-        return to;
-    }
+    public Account getDestinationAccount() {return destinationAccount;}
+
+    public Long getDestinationAccountId() {return destinationAccountId;}
 
     @Override
     public String toString() {
@@ -29,7 +32,7 @@ public class Transfer extends Transaction {
                 "🔄 Transferência",
                 this.getDescription(),
                 this.getAmount(),
-                this.getFrom().getName(),
-                this.getTo().getName());
+                this.getOriginAccount().getName(),
+                this.getDestinationAccount().getName());
     }
 }

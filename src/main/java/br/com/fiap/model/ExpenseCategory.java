@@ -1,17 +1,31 @@
 package br.com.fiap.model;
 
+import java.sql.Timestamp;
+
 public class ExpenseCategory {
-    private final int id;
+    private final Long id;
     private String name;
     private ExpenseCategoryType type;
+    private Timestamp createdAt;
+    private String color;
+    private String icon;
 
-    public ExpenseCategory(int id, String name, ExpenseCategoryType type) {
+    public ExpenseCategory(Long id, String name, ExpenseCategoryType type) {
         this.id = id;
         this.name = name;
         this.type = type;
     }
 
-    public int getId() {
+    public ExpenseCategory(Long id, String name, ExpenseCategoryType type, Timestamp createdAt, String color, String icon) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.createdAt = createdAt;
+        this.color = color;
+        this.icon = icon;
+    }
+
+    public Long getId() {
         return id;
     }
 
@@ -29,5 +43,17 @@ public class ExpenseCategory {
 
     public void setType(ExpenseCategoryType type) {
         this.type = type;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 }

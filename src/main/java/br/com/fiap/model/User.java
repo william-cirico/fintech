@@ -1,12 +1,14 @@
 package br.com.fiap.model;
 
+import br.com.fiap.dao.AccountDao;
+
 import java.rmi.UnexpectedException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private Long id;
+    private final Long id;
     private String name;
     private String cpf;
     private String username;
@@ -21,9 +23,10 @@ public class User {
         this.username = username;
         this.password = password;
         this.createdAt = createdAt;
-
     }
-    public User(String name, String cpf, String username, String password){
+
+    public User(Long id,String name, String cpf, String password, String username) {
+        this.id = id;
         this.name = name;
         this.cpf = cpf;
         this.username = username;

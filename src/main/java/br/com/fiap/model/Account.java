@@ -1,5 +1,6 @@
 package br.com.fiap.model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,10 +8,10 @@ public class Account {
     private final Long id;
     private String name;
     private double balance;
+    private LocalDateTime createdAt;
+    private Long userId;
     private List<Transaction> transactions = new ArrayList<>();
     private List<Investment> investments = new ArrayList<>();
-
-
 
     public Long getId() {
         return id;
@@ -24,10 +25,12 @@ public class Account {
         return name;
     }
 
-    public Account(Long id, String name, double balance) {
+    public Account(Long id, String name, double balance, LocalDateTime createdAt, Long userId) {
         this.id = id;
-        this.balance = balance;
         this.name = name;
+        this.balance = balance;
+        this.createdAt = createdAt;
+        this.userId = userId;
     }
 
     public void addTransaction(Transaction transaction) {
