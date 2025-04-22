@@ -16,7 +16,7 @@ public class User {
     private final List<Account> accounts = new ArrayList<>();
     private LocalDateTime createdAt;
 
-    public User(Long id,String name, String cpf, String password, String username, LocalDateTime createdAt) {
+    public User(Long id,String name, String cpf, String username, String password, LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
@@ -25,7 +25,7 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public User(Long id,String name, String cpf, String password, String username) {
+    public User(Long id,String name, String cpf, String username, String password) {
         this.id = id;
         this.name = name;
         this.cpf = cpf;
@@ -83,5 +83,18 @@ public class User {
 
     public List<Account> getAccounts() {
         return this.accounts;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", accounts=" + accounts +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }

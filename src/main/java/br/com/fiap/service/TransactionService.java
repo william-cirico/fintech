@@ -16,10 +16,17 @@ import java.util.stream.Collectors;
  * Classe responsável por gerenciar transações financeiras em contas bancárias.
  */
 public class TransactionService {
-    private IncomeDao incomeDao = new IncomeDao();
-    private AccountDao accountDao = new AccountDao();
-    private ExpenseDao expenseDao = new ExpenseDao();
-    private TransferDao transferDao = new TransferDao();
+    private final IncomeDao incomeDao;
+    private final AccountDao accountDao;
+    private final ExpenseDao expenseDao;
+    private final TransferDao transferDao;
+
+    public TransactionService(IncomeDao incomeDao, AccountDao accountDao, ExpenseDao expenseDao, TransferDao transferDao) {
+        this.incomeDao = incomeDao;
+        this.accountDao = accountDao;
+        this.expenseDao = expenseDao;
+        this.transferDao = transferDao;
+    }
 
     /**
      * Adiciona um valor como receita a uma conta.
@@ -33,7 +40,7 @@ public class TransactionService {
             throw new IllegalArgumentException("O valor do recebimento deve ser positivo.");
 
         // Criação da transação de receita
-        Transaction transaction = incomeDao.insert(new Income(null, amount, date, "Depósito", null, null));
+        Transaction transaction = incomeDao.insert(new Income(null, amount, date, "Depósito", null, null, account.getId()));
 
         // Adiciona a transação na conta e incrementa o saldo
         account.addTransaction(transaction);
@@ -61,7 +68,7 @@ public class TransactionService {
         // Criação da transação de despesa (valor negativo)
         Transaction transaction = expenseDao.insert(new Expense(null, amount, date, "Gasto", null, null, category, account.getId()));
 
-        // Adiciona a transação na conta e reduz o saldo
+        // Reduz o saldo da conta
         account.addTransaction(transaction);
         account.withdraw(amount);
 

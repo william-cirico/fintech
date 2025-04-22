@@ -1,6 +1,7 @@
 package br.com.fiap.service;
 
 import br.com.fiap.dao.UserDao;
+import br.com.fiap.factory.UserValidationFactory;
 import br.com.fiap.model.User;
 import br.com.fiap.validations.CPFValidation;
 import br.com.fiap.validations.PasswordMatchValidation;
@@ -15,13 +16,14 @@ import java.util.*;
  * incluindo registro, login e armazenamento seguro de senhas.
  */
 public class AuthService {
-    UserDao userDao = new UserDao();
+    private final UserDao userDao;
+    private final UserValidationFactory userValidationFactory;
 
+    public AuthService(UserDao userDao) {
+        this.userDao = userDao;
+        this.userValidationFactory = new UserValidationFactory(userDao);
+    }
 
-    private List<UserValidation> validations = new ArrayList<>(List.of(
-            new CPFValidation(),
-            new UsernameValidation()
-    ));
     /**
      * Retorna a lista de usuários cadastrados.
      *
@@ -42,8 +44,8 @@ public class AuthService {
     public void registerUser(String name, String cpf, String username, String password, String confirmPassword) {
         User userValidation = new User(null, name, cpf, username, password);
 
-        UserValidation passwordMatchValidation = new PasswordMatchValidation(password, confirmPassword);
-        validations.add(passwordMatchValidation);
+
+        List<UserValidation> validations = userValidationFactory.createRegisterUserValidations(password, confirmPassword);
 
         for (UserValidation validation : validations){
             validation.validate(userValidation);

@@ -1,8 +1,7 @@
-package br.com.fiap.cli;
+package br.com.fiap.view;
 
 import br.com.fiap.dao.AccountDao;
 import br.com.fiap.dao.ExpenseCategoryDao;
-import br.com.fiap.dao.UserDao;
 import br.com.fiap.exceptions.OptionalAccountInvalidException;
 import br.com.fiap.model.*;
 import br.com.fiap.service.*;
@@ -11,7 +10,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class CLIHandler {
+public class ViewHandler {
     private final Scanner scanner = new Scanner(System.in);
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -20,7 +19,8 @@ public class CLIHandler {
     private final InvestmentService investmentService;
     private final ReportService reportService;
     private final AccountService accountService;
-    private final ExpenseCategoryDao expenseCategoryDao = new ExpenseCategoryDao();
+    private final ExpenseCategoryDao expenseCategoryDao;
+    private final AccountDao accountDao;
 
     private User authenticatedUser = null;
 
@@ -41,17 +41,21 @@ public class CLIHandler {
                 default -> System.out.println("Opção inválida");
             }
         }
-    }public CLIHandler(TransactionService transactionService, AuthService authService, InvestmentService investmentService, ReportService reportService, AccountService accountService) {
-             this.transactionService = transactionService;
-             this.authService = authService;
-             this.investmentService = investmentService;
-             this.reportService = reportService;
-             this.accountService = accountService;
-         }
+    }
+
+    public ViewHandler(TransactionService transactionService, AuthService authService, InvestmentService investmentService, ReportService reportService, AccountService accountService, ExpenseCategoryDao expenseCategoryDao, AccountDao accountDao) {
+        this.transactionService = transactionService;
+        this.authService = authService;
+        this.investmentService = investmentService;
+        this.reportService = reportService;
+        this.accountService = accountService;
+        this.expenseCategoryDao = expenseCategoryDao;
+        this.accountDao = accountDao;
+    }
 
     private ExpenseCategory selectExpenseCategory() {
         List<ExpenseCategory> expenseCategories = expenseCategoryDao.findAll();
-        
+
         while (true) {
             System.out.println("Selecione a categoria do gasto:");
             for (int i = 0; i < expenseCategories.size(); i++) {
@@ -115,13 +119,12 @@ public class CLIHandler {
 
     private void showMenu() {
         while (true) {
+            boolean hasAccounts = !accountDao.findAllByUserId(authenticatedUser.getId()).isEmpty();
+
             System.out.println("\nEscolha uma opção:");
+            System.out.println("1 - Cadastrar conta");
 
-            if (authenticatedUser.getAccounts().isEmpty()) {
-                System.out.println("1 - Cadastrar conta");
-
-            } else {
-                System.out.println("1 - Cadastrar conta");
+            if (hasAccounts) {
                 System.out.println("2 - Adicionar Gasto");
                 System.out.println("3 - Adicionar Recebimento");
                 System.out.println("4 - Adicionar Transferência");
@@ -129,36 +132,38 @@ public class CLIHandler {
                 System.out.println("6 - Relatórios");
                 System.out.println("7 - Alterar dados");
                 System.out.println("8 - Logout");
-                System.out.print("Opção: ");
             }
 
-            int option = Integer.parseInt(scanner.nextLine());
+            System.out.print("Opção: ");
+            int option;
+            try {
+                option = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Digite um número.");
+                continue;
+            }
 
-            if (authenticatedUser.getAccounts().isEmpty()) {
-                if (option == 1) {
-                    createAccount();
-                } else {
-                    System.out.println("Opção inválida");
+            if (!hasAccounts && option != 1) {
+                System.out.println("Opção inválida. Cadastre uma conta primeiro.");
+                continue;
+            }
+
+            switch (option) {
+                case 1 -> createAccount();
+                case 2 -> createExpense();
+                case 3 -> createIncome();
+                case 4 -> createTransfer();
+                case 5 -> createInvestment();
+                case 6 -> showReportsMenu();
+                case 7 -> updateUser();
+                case 8 -> {
+                    authenticatedUser = null;
+                    System.out.println("Logout realizado!");
+                    return;
                 }
-            } else {
-                switch (option) {
-                    case 1 -> createAccount();
-                    case 2 -> createExpense();
-                    case 3 -> createIncome();
-                    case 4 -> createTransfer();
-                    case 5 -> createInvestment();
-                    case 6 -> showReportsMenu();
-                    case 7 -> updateUser();
-                    case 8 -> {
-                        authenticatedUser = null;
-                        System.out.println("Logout realizado!");
-                        return;
-                    }
-                    default -> System.out.println("Opção inválida");
-                }
+                default -> System.out.println("Opção inválida");
             }
         }
-
     }
 
     private void showReportsMenu() {
@@ -191,8 +196,10 @@ public class CLIHandler {
                 case 2 -> reportService.printExpenseReportByPeriodFromAccount(account, startDate, endDate);
                 case 3 -> reportService.printIncomeReportByPeriodFromAccount(account, startDate, endDate);
                 case 4 -> reportService.printTransferReportByPeriodFromAccount(account, startDate, endDate);
-                case 5 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.ESSENTIAL, startDate, endDate);
-                case 6 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.NON_ESSENTIAL, startDate, endDate);
+                case 5 ->
+                        reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.ESSENTIAL, startDate, endDate);
+                case 6 ->
+                        reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.NON_ESSENTIAL, startDate, endDate);
                 default -> System.out.println("Opção inválida");
             }
         }
@@ -216,7 +223,7 @@ public class CLIHandler {
     }
 
     private void createTransfer() {
-        if (authenticatedUser.getAccounts().size() < 2) {
+        if (accountDao.findAllByUserId(authenticatedUser.getId()).size() < 2) {
             System.out.println("Para realizar uma transferência é necessário possuir pelo menos duas contas");
             return;
         }
@@ -252,7 +259,7 @@ public class CLIHandler {
             }
         } while (balance < 0);
 
-        Account newAccount = new Account(null, accountName, balance, null, null);
+        Account newAccount = new Account(null, accountName, balance, null, authenticatedUser.getId());
         accountService.addAccount(newAccount);
     }
 
@@ -260,9 +267,9 @@ public class CLIHandler {
         List<Account> accounts = accountService.findUserAccounts(authenticatedUser);
 
         while (true) {
-            for(Account account: accounts){
+            for (Account account : accounts) {
                 System.out.println("Id: " + account.getId());
-                System.out.println("Name: "+ account.getName());
+                System.out.println("Name: " + account.getName());
             }
 
             System.out.println("Opção desejada:");
@@ -301,43 +308,45 @@ public class CLIHandler {
     }
 
     private void createInvestment() {
-        System.out.println("-----------------------------------------------------------------------");
-        System.out.println("Account View");
-        Scanner scanner = new Scanner(System.in);
-
-
         Account account = selectAccount("Selecione a conta: ");
 
-
-        //Teste construtor básico do investimento e utilização do método adicionarInvestimento.
         System.out.println("Digite o valor do aporte: ");
         double contribution = Double.parseDouble(scanner.nextLine());
+
         System.out.println("Digite a rentabilidade: ");
         double profitability = Double.parseDouble(scanner.nextLine());
 
-        LocalDate date = getParsedDate("Digite a data do investimo (dd/mm/yyyy): ");
+        LocalDate date = getParsedDate("Digite a data do investimento (dd/mm/yyyy): ");
 
-        // Informaçōes adicionais sobre o investimento
-        System.out.println("Gostaria de adicionar mais informaçōes sobre o investimento? (Sim ou Não)");
-        String resposta = String.valueOf(scanner.nextLine());
+        // Campos opcionais
+        String type = null;
+        String risk = null;
+        String liquidity = null;
+        LocalDate dueDate = null;
+
+        System.out.println("Gostaria de adicionar mais informações sobre o investimento? (Sim ou Não)");
+        String resposta = scanner.nextLine().trim();
+
         if (resposta.equalsIgnoreCase("Sim")) {
             System.out.println("Tipo do investimento: ");
-            String type = scanner.nextLine();
-            System.out.println("Risco do investimento");
-            String risk = scanner.nextLine();
-            System.out.println("Liquidez");
-            String liquidity = scanner.nextLine();
+            type = scanner.nextLine();
 
-            LocalDate dueDate = getParsedDate("Digite a data de vencimento (dd/mm/yyyy): ");
+            System.out.println("Risco do investimento: ");
+            risk = scanner.nextLine();
 
-            Investment investment = investmentService.addInvestment(account, contribution, date, type, risk, liquidity, dueDate,  profitability, account.getId());
+            System.out.println("Liquidez: ");
+            liquidity = scanner.nextLine();
 
-        } else if (resposta.equalsIgnoreCase("Não") || resposta.equalsIgnoreCase("Nao")) {
-            System.out.println("Dados não preenchidos permanecerão vazios.");
-        } else {
+            dueDate = getParsedDate("Digite a data de vencimento (dd/mm/yyyy): ");
+        } else if (!resposta.equalsIgnoreCase("Não") && !resposta.equalsIgnoreCase("Nao")) {
             System.out.println("Resposta inválida. Considerando como 'Não'.");
+        } else {
+            System.out.println("Dados não preenchidos permanecerão vazios.");
         }
+
+        investmentService.addInvestment(account, contribution, date, type, risk, liquidity, dueDate, profitability, account.getId());
     }
+
 
     private void updateUser() {
         String newName;
@@ -355,14 +364,14 @@ public class CLIHandler {
 
             System.out.println("Deseja alterar o nome na conta? (Sim/Não)");
             String alterName = String.valueOf(scanner.nextLine());
-            if(alterName.equalsIgnoreCase("Sim")){
+            if (alterName.equalsIgnoreCase("Sim")) {
                 System.out.println("Digite o novo nome:");
                 newName = scanner.nextLine();
                 authenticatedUser.setName(newName);
             }
             System.out.println("Deseja alterar o cpf? (Sim/Não)");
             String alterCpf = String.valueOf(scanner.nextLine());
-            if(alterCpf.equalsIgnoreCase("Sim")){
+            if (alterCpf.equalsIgnoreCase("Sim")) {
                 System.out.println("Digite o novo cpf:");
                 newCpf = scanner.nextLine();
                 authenticatedUser.setCpf(newCpf);
@@ -370,14 +379,14 @@ public class CLIHandler {
             System.out.println("Deseja alterar a senha? (Sim/Não)");
             boolean decisionAlterPassword = false;
             String alterPassword = String.valueOf(scanner.nextLine());
-            if(alterPassword.equalsIgnoreCase("Sim")){
+            if (alterPassword.equalsIgnoreCase("Sim")) {
                 decisionAlterPassword = true;
                 System.out.println("Digite a nova senha:");
                 newPassword = scanner.nextLine();
                 System.out.println("Confirme a nova senha:");
                 confirmationNewPassword = scanner.nextLine();
 
-                if(!newPassword.equals(confirmationNewPassword)){
+                if (!newPassword.equals(confirmationNewPassword)) {
                     System.out.println("As senhas não coincidem, o processo será reiniciado.");
                     updateUser();
                 }
@@ -385,7 +394,7 @@ public class CLIHandler {
             }
             System.out.println("Deseja alterar o username? (Sim/Não)");
             String alterUsername = String.valueOf(scanner.nextLine());
-            if(alterUsername.equalsIgnoreCase("Sim")){
+            if (alterUsername.equalsIgnoreCase("Sim")) {
                 System.out.println("Digite o novo username:");
                 newUsername = scanner.nextLine();
                 authenticatedUser.setUsername(newUsername);

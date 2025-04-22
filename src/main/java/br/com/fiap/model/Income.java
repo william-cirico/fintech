@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Income extends Transaction {
-    public Income(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt) {
-        super(id, amount, date, description, observations, createdAt, TransactionType.INCOME);
+    public Income(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt, Long originAccountId) {
+        super(id, amount, date, description, observations, createdAt, TransactionType.INCOME, originAccountId);
     }
 
     @Override

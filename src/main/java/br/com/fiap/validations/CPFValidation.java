@@ -5,8 +5,12 @@ import br.com.fiap.exceptions.CpfAlreadyExistsException;
 import br.com.fiap.model.User;
 
 public class CPFValidation implements UserValidation{
-    private final UserDao userDao = new UserDao();
-    private UserValidation CPFValidation;
+    private final UserDao userDao;
+
+    public CPFValidation(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
     @Override
     public void validate(User user) {
 

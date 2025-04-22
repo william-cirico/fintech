@@ -75,5 +75,9 @@ public class Account {
     public List<Transaction> getTransactions() {
         return transactions;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
 }
 

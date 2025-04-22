@@ -19,7 +19,7 @@ public class ConnectionFactory {
             environment = "development";
         }
 
-        String envFile = ".env" + environment;
+        String envFile = ".env." + environment;
 
         return Dotenv.configure()
                 .filename(envFile)

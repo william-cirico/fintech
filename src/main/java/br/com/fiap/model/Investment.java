@@ -124,10 +124,6 @@ public class Investment {
         if(liquidity == null){
             liquidity = "Não informado";
         }
-            // Pensar em como resolver para data de vencimento
-        //   if(dataVencimento == null){
-
-       // }
 
 
         return "Valor: " + amount + "\n" +
