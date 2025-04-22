@@ -1,6 +1,7 @@
 package br.com.fiap.cli;
 
 import br.com.fiap.dao.AccountDao;
+import br.com.fiap.dao.ExpenseCategoryDao;
 import br.com.fiap.dao.UserDao;
 import br.com.fiap.exceptions.OptionalAccountInvalidException;
 import br.com.fiap.model.*;
@@ -12,10 +13,6 @@ import java.util.*;
 
 public class CLIHandler {
     private final Scanner scanner = new Scanner(System.in);
-    private final List<ExpenseCategory> expenseCategories = new ArrayList<>(Arrays.asList(
-            new ExpenseCategory(null, "Lazer", ExpenseCategoryType.NON_ESSENTIAL),
-            new ExpenseCategory(null, "Saúde", ExpenseCategoryType.ESSENTIAL)
-    ));
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private final AuthService authService;
@@ -23,6 +20,7 @@ public class CLIHandler {
     private final InvestmentService investmentService;
     private final ReportService reportService;
     private final AccountService accountService;
+    private final ExpenseCategoryDao expenseCategoryDao = new ExpenseCategoryDao();
 
     private User authenticatedUser = null;
 
@@ -52,6 +50,8 @@ public class CLIHandler {
          }
 
     private ExpenseCategory selectExpenseCategory() {
+        List<ExpenseCategory> expenseCategories = expenseCategoryDao.findAll();
+        
         while (true) {
             System.out.println("Selecione a categoria do gasto:");
             for (int i = 0; i < expenseCategories.size(); i++) {
@@ -170,14 +170,13 @@ public class CLIHandler {
             System.out.println("4) Relatório de Transferências");
             System.out.println("5) Relatório de Despesas Essenciais");
             System.out.println("6) Relatório de Despesas Não Essenciais");
-            System.out.println("7) Rank de Despesas por Categoria");
-            System.out.println("8) Sair");
+            System.out.println("7) Sair");
             System.out.println("Digite a opção: ");
 
             int option = scanner.nextInt();
             scanner.nextLine();
 
-            if (option == 8) {
+            if (option == 7) {
                 break;
             }
 
@@ -194,7 +193,6 @@ public class CLIHandler {
                 case 4 -> reportService.printTransferReportByPeriodFromAccount(account, startDate, endDate);
                 case 5 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.ESSENTIAL, startDate, endDate);
                 case 6 -> reportService.printTotalExpensesByCategoryTypeAndPeriodFromAccount(account, ExpenseCategoryType.NON_ESSENTIAL, startDate, endDate);
-                case 7 -> reportService.printTopExpenseCategoriesByPeriod(account, startDate, endDate);
                 default -> System.out.println("Opção inválida");
             }
         }
@@ -259,10 +257,9 @@ public class CLIHandler {
     }
 
     private Account selectAccount(String label) {
-        while (true) {
-            System.out.println(label);
-            List<Account> accounts = accountService.findUserAccounts(authenticatedUser);
+        List<Account> accounts = accountService.findUserAccounts(authenticatedUser);
 
+        while (true) {
             for(Account account: accounts){
                 System.out.println("Id: " + account.getId());
                 System.out.println("Name: "+ account.getName());
@@ -278,6 +275,7 @@ public class CLIHandler {
             if (selectedAccount.isEmpty()) {
                 throw new OptionalAccountInvalidException(option);
             }
+
             return selectedAccount.get();
         }
     }
@@ -318,8 +316,6 @@ public class CLIHandler {
         double profitability = Double.parseDouble(scanner.nextLine());
 
         LocalDate date = getParsedDate("Digite a data do investimo (dd/mm/yyyy): ");
-
-
 
         // Informaçōes adicionais sobre o investimento
         System.out.println("Gostaria de adicionar mais informaçōes sobre o investimento? (Sim ou Não)");

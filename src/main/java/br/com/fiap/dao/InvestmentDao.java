@@ -32,10 +32,28 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
         }
     }
 
+    public List<Investment> findAllByAccountId(Long accountId) {
+        List<Investment> investments = new ArrayList<>();
+        String sql = "SELECT * FROM T_FIN_INVESTMENT WHERE ACCOUNT_ID = ?";
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, accountId);
+                ResultSet resultSet = stm.executeQuery();
+                while (resultSet.next()){
+                    investments.add(fromResultSet(resultSet));
+                }
+            }
+            return investments;
+
+        }catch (SQLException e){
+            throw new DatabaseException(e);
+        }
+    }
+
     @Override
     public Investment insert(Investment investment) {
         String sql = "INSERT INTO T_FIN_INVESTMENT (AMOUNT, DATE, TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY, ACCOUNT_ID)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
@@ -48,11 +66,19 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
                 stm.setDouble(7, investment.getProfitability());
                 stm.setLong(8, investment.getAccountID());
                 stm.executeUpdate();
+
+                ResultSet rs = stm.getGeneratedKeys();
+                if(rs.next()) {
+                    long generatedId = rs.getLong(1);
+                    return findById(generatedId);
+                }
+
             }
         } catch (SQLException e){
             throw new DatabaseException(e);
         }
-        return findById(investment.getId());
+        return null;
+
     }
 
     @Override

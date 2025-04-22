@@ -60,11 +60,17 @@ public class AccountDao implements BaseDao<Account, Long> {
                 stmt.setString(1, account.getName());
                 stmt.setDouble(2, account.getBalance());
                 stmt.executeUpdate();
-                return (findById(account.getId()));
+
+                ResultSet rs = stmt.getGeneratedKeys();
+                if(rs.next()){
+                    long generatedId = rs.getLong(1);
+                    return findById(generatedId);
+                }
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+        return null;
     }
 
     @Override
@@ -129,7 +135,7 @@ public class AccountDao implements BaseDao<Account, Long> {
         }
     }
 
-    public List<Account> findAllById(Long user_id) {
+    public List<Account> findAllByUserId(Long user_id) {
         List<Account> accounts = new ArrayList<>();
         String sql = "SELECT * FROM T_FIN_ACCOUNT WHERE USER_ID = ?";
 

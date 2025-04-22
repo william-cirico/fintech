@@ -44,4 +44,16 @@ public class ExpenseCategory {
     public void setType(ExpenseCategoryType type) {
         this.type = type;
     }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
 }

@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class UserDao implements BaseDao <User, Long>{
+
     String sql;
+
     @Override
     public User insert(User user) {
         sql = "INSERT INTO T_FIN_USER (name, cpf, password, username) VALUES (?,?,?,?)";
@@ -21,10 +23,13 @@ public class UserDao implements BaseDao <User, Long>{
                 stmt.setString(2, user.getCpf());
                 stmt.setString(3, user.getPassword());
                 stmt.setString(4, user.getUsername());
+
                 stmt.executeUpdate();
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    return findById(user.getId());
+
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    long generatedId = rs.getLong(1);
+                    return findById(generatedId);
                 }
             }
         } catch (SQLException e) {

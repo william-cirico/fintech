@@ -2,10 +2,10 @@ package br.com.fiap.service;
 
 import br.com.fiap.dao.UserDao;
 import br.com.fiap.model.User;
-import br.com.fiap.validation.CPFValidation;
-import br.com.fiap.validation.PasswordMatchValidation;
-import br.com.fiap.validation.UserValidation;
-import br.com.fiap.validation.UsernameValidation;
+import br.com.fiap.validations.CPFValidation;
+import br.com.fiap.validations.PasswordMatchValidation;
+import br.com.fiap.validations.UserValidation;
+import br.com.fiap.validations.UsernameValidation;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.*;

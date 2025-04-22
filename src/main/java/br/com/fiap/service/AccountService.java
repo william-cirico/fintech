@@ -2,12 +2,10 @@ package br.com.fiap.service;
 
 import br.com.fiap.dao.AccountDao;
 
-import br.com.fiap.exceptions.AccountNameAlreadyExistsException;
-import br.com.fiap.exceptions.OptionalAccountInvalidException;
 import br.com.fiap.model.Account;
 
 import br.com.fiap.model.User;
-import br.com.fiap.validation.AccountNameValidation;
+import br.com.fiap.validations.AccountNameValidation;
 
 import java.util.List;
 
@@ -23,7 +21,7 @@ public class AccountService {
     }
 
     public List<Account> findUserAccounts(User user) {
-        return accountDao.findAllById(user.getId());
+        return accountDao.findAllByUserId(user.getId());
     }
 }
 

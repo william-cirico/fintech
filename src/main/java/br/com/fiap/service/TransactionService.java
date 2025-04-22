@@ -1,5 +1,9 @@
 package br.com.fiap.service;
 
+import br.com.fiap.dao.AccountDao;
+import br.com.fiap.dao.ExpenseDao;
+import br.com.fiap.dao.IncomeDao;
+import br.com.fiap.dao.TransferDao;
 import br.com.fiap.model.*;
 
 import java.time.LocalDate;
@@ -12,6 +16,10 @@ import java.util.stream.Collectors;
  * Classe responsável por gerenciar transações financeiras em contas bancárias.
  */
 public class TransactionService {
+    private IncomeDao incomeDao = new IncomeDao();
+    private AccountDao accountDao = new AccountDao();
+    private ExpenseDao expenseDao = new ExpenseDao();
+    private TransferDao transferDao = new TransferDao();
 
     /**
      * Adiciona um valor como receita a uma conta.
@@ -25,11 +33,14 @@ public class TransactionService {
             throw new IllegalArgumentException("O valor do recebimento deve ser positivo.");
 
         // Criação da transação de receita
-        Transaction transaction = new Income(UUID.randomUUID().toString(), amount, date, "Depósito");
+        Transaction transaction = incomeDao.insert(new Income(null, amount, date, "Depósito", null, null));
 
         // Adiciona a transação na conta e incrementa o saldo
         account.addTransaction(transaction);
         account.deposit(amount);
+
+        // Atualiza a conta no BD
+        accountDao.update(account);
     }
 
     /**
@@ -48,11 +59,14 @@ public class TransactionService {
             throw new IllegalArgumentException("Saldo insuficiente.");
 
         // Criação da transação de despesa (valor negativo)
-        Transaction transaction = new Expense(UUID.randomUUID().toString(), -amount, date, "Gasto", category);
+        Transaction transaction = expenseDao.insert(new Expense(null, amount, date, "Gasto", null, null, category, account.getId()));
 
         // Adiciona a transação na conta e reduz o saldo
         account.addTransaction(transaction);
         account.withdraw(amount);
+
+        // Atualiza a conta
+        accountDao.update(account);
     }
 
     /**
@@ -74,49 +88,15 @@ public class TransactionService {
             throw new IllegalArgumentException("Saldo insuficiente para transferência.");
 
         // Criação das transações de transferência
-        from.addTransaction(new Transfer(
-                UUID.randomUUID().toString(),
-                -amount,
-                date,
-                "Transferência para " + to.getName(),
-                TransactionType.TRANSFER,
-                from,
-                to
-        ));
-
-        to.addTransaction(new Transfer(
-                UUID.randomUUID().toString(),
-                amount,
-                date,
-                "Transferência de " + from.getName(),
-                TransactionType.TRANSFER,
-                from,
-                to
-        ));
+        transferDao.insert(new Transfer(null, -amount, date, "Transferência para " + to.getName(), null, null, from, to));
+        transferDao.insert(new Transfer(null, amount, date, "Transferência de " + from.getName(), null, null, from, to));
 
         // Realiza a movimentação do saldo entre as contas
         from.withdraw(amount);
         to.deposit(amount);
-    }
 
-    public List<Transaction> getTransactionsByTypeAndPeriodFromAccount(Account account, TransactionType type, LocalDate start, LocalDate end) {
-        return account.getTransactions().stream()
-                .filter(t -> t.getType() == type &&
-                        isWithinPeriod(t, start, end))
-                .sorted(Comparator.comparing(Transaction::getDate))
-                .collect(Collectors.toList());
-    }
-
-    public List<Expense> getExpensesByCategoryTypeAndPeriodFromAccount(Account account, ExpenseCategoryType type, LocalDate start, LocalDate end) {
-        return account.getTransactions().stream()
-                .filter(t -> t instanceof Expense)
-                .map(t -> (Expense) t)
-                .filter(t -> t.getCategory().getType() == type &&
-                        isWithinPeriod(t, start, end)).collect(Collectors.toList());
-    }
-
-    private boolean isWithinPeriod(Transaction t, LocalDate start, LocalDate end) {
-        return (t.getDate().isAfter(start) || t.getDate().isEqual(start)) &&
-                (t.getDate().isBefore(end) || t.getDate().isEqual(end));
+        // Atualizando as contas
+        accountDao.update(from);
+        accountDao.update(to);
     }
 }

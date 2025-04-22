@@ -3,15 +3,13 @@ package br.com.fiap.dao;
 import br.com.fiap.exceptions.DatabaseException;
 import br.com.fiap.exceptions.EntityNotFoundException;
 import br.com.fiap.factory.ConnectionFactory;
-import br.com.fiap.model.Expense;
-import br.com.fiap.model.ExpenseCategory;
-import br.com.fiap.model.ExpenseCategoryType;
-import oracle.jdbc.proxy.annotation.Pre;
+import br.com.fiap.model.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +45,37 @@ public class ExpenseDao implements BaseDao<Expense, Long>{
 
     }
 
+    public List<Expense> findAllByAccountId(Long accountId) {
+        List<Expense> expenses = new ArrayList<>();
+        String sql = """
+            SELECT 
+                e.*,
+                ec.id expense_category_id,
+                ec.name expense_category_name,
+                ec.type expense_category_type,
+                ec.created_at expense_category_created_at,
+                ec.color expense_category_color,
+                e.icon expense_category_icon
+            FROM T_FIN_EXPENSE e 
+            INNER JOIN T_FIN_EXPENSE_CATEGORY ec ON ec.id = e.category_id
+            WHERE e.account_id = ?
+        """;
+
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, accountId);
+                ResultSet result = stm.executeQuery();
+                while(result.next()){
+                    expenses.add(fromResultSet(result));
+                }
+            }
+            return expenses;
+        }catch (SQLException e){
+            throw new DatabaseException(e);
+        }
+
+    }
+
     @Override
     public Expense insert(Expense expense) {
         String sql = "INSERT INTO T_FIN_EXPENSE (AMOUNT, DATE, DESCRIPTION, OBSERVATION, ACCOUNT_ID, CATEGORY_ID) +" +
@@ -60,10 +89,98 @@ public class ExpenseDao implements BaseDao<Expense, Long>{
                 stm.setString(4, expense.getObservations());
                 stm.setLong(5, expense.getOriginAccountId());
                 stm.setLong(6, expense.getCategory().getId());
-            }
-            return findById(expense.getId());
+                stm.executeUpdate();
 
+                ResultSet rs = stm.getGeneratedKeys();
+                if(rs.next()) {
+                    long generatedId = rs.getLong(1);
+                    return findById(generatedId);
+                }
+            }
         }catch (SQLException e){
+            throw new DatabaseException(e);
+        }
+        return null;
+    }
+
+    public double getTotalByCategoryTypeAndPeriodFromAccount(Account account, ExpenseCategoryType type, LocalDate start, LocalDate end) {
+        String sql = """
+            SELECT COALESCE(SUM(e.amount), 0)
+            FROM T_FIN_EXPENSE e
+            INNER JOIN T_FIN_EXPENSE_CATEGORY c ON e.category_id = c.id
+            WHERE e.account_id = ?
+            AND c.type = ?
+            AND e.date BETWEEN ? AND ?
+        """;
+
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, account.getId());
+                stm.setString(2, type.toString());
+                stm.setDate(3, java.sql.Date.valueOf(start));
+                stm.setDate(4, java.sql.Date.valueOf(end));
+
+                ResultSet rs = stm.executeQuery();
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+
+        return 0;
+    }
+
+    public double getTotalByPeriodFromAccount(Account account, LocalDate start, LocalDate end) {
+        String sql = """
+            SELECT COALESCE(SUM(amount), 0)
+            FROM T_FIN_EXPENSE            
+            WHERE account_id = ?            
+            AND date BETWEEN ? AND ?
+        """;
+
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, account.getId());
+                stm.setDate(3, java.sql.Date.valueOf(start));
+                stm.setDate(4, java.sql.Date.valueOf(end));
+
+                ResultSet rs = stm.executeQuery();
+                if (rs.next()) {
+                    return rs.getDouble(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+
+        return 0;
+    }
+
+    public List<Expense> findAllByPeriodFromAccount(Account account, LocalDate start, LocalDate end) {
+        List<Expense> expenses = new ArrayList<>();
+
+        String sql = """
+            SELECT * FROM T_FIN_EXPENSE              
+            WHERE account_id = ?            
+            AND e.date BETWEEN ? AND ?
+        """;
+
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, account.getId());
+                stm.setDate(2, java.sql.Date.valueOf(start));
+                stm.setDate(3, java.sql.Date.valueOf(end));
+
+                ResultSet rs = stm.executeQuery();
+                while(rs.next()){
+                    expenses.add(fromResultSet(rs));
+                }
+
+                return expenses;
+            }
+        } catch (SQLException e) {
             throw new DatabaseException(e);
         }
     }
@@ -94,7 +211,7 @@ public class ExpenseDao implements BaseDao<Expense, Long>{
 
     @Override
     public void delete(Expense expense) {
-        String sql = "DELETE T_FIN_EXPENSE WHERE ID = ?";
+        String sql = "DELETE FROM T_FIN_EXPENSE WHERE ID = ?";
 
         try (Connection connection = ConnectionFactory.getConnection()) {
             try (PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -106,13 +223,25 @@ public class ExpenseDao implements BaseDao<Expense, Long>{
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
-
         }
     }
 
     @Override
     public Expense findById(Long id) {
-        return null;
+        String sql = "SELECT * FROM T_FIN_EXPENSE WHERE ID = ?";
+
+        try(Connection connection = ConnectionFactory.getConnection()){
+            try(PreparedStatement stm = connection.prepareStatement(sql)){
+                stm.setLong(1, id);
+                ResultSet result = stm.executeQuery();
+                if(!result.next()){
+                    throw new EntityNotFoundException(id);
+                }
+                return fromResultSet(result);
+            }
+        }catch (SQLException e){
+            throw new DatabaseException(e);
+        }
     }
 
     private Expense fromResultSet(ResultSet result) throws SQLException{
