@@ -1,5 +1,6 @@
 package br.com.fiap.utils;
 
+import br.com.fiap.exceptions.MigrationException;
 import br.com.fiap.factory.ConnectionFactory;
 
 import java.nio.file.Files;
@@ -10,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class MigrationRunner {
-    public static void runMigrations() {
+    public static void runMigrations() throws Exception {
         try (Connection conn = ConnectionFactory.getConnection()) {
             createMigrationsTableIfNotExist(conn);
             Set<String> applied = getAppliedMigrations(conn);
@@ -24,18 +25,23 @@ public class MigrationRunner {
                             System.out.println("Rodando migration: " + filename);
                             try {
                                 String sql = Files.readString(file);
-                                try (Statement stmt = conn.createStatement()) {
-                                    stmt.execute(sql);
+
+                                String[] statements = sql.split(";");
+                                for (String statement : statements) {
+                                    String trimmed = statement.trim();
+                                    if (!trimmed.isEmpty()) {
+                                        try (Statement stmt = conn.createStatement()) {
+                                            stmt.execute(trimmed);
+                                        }
+                                    }
                                 }
 
                                 saveMigrations(conn, filename);
                             } catch (Exception e) {
-                                System.out.println("Erro ao aplicar a migration: " + filename + ": " + e.getMessage());
+                                throw new MigrationException(filename, e.getMessage());
                             }
                         }
                     });
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

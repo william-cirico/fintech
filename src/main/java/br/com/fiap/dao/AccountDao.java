@@ -53,16 +53,17 @@ public class AccountDao implements BaseDao<Account, Long> {
 
     @Override
     public Account insert(Account account) {
-        String sql = "INSERT INTO T_FIN_ACCOUNT (NAME, BALANCE) VALUES (?,?)";
+        String sql = "INSERT INTO T_FIN_ACCOUNT (NAME, BALANCE, USER_ID) VALUES (?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection()) {
             try (PreparedStatement stmt = conn.prepareStatement(sql);) {
                 stmt.setString(1, account.getName());
                 stmt.setDouble(2, account.getBalance());
+                stmt.setLong(3, account.getUserId());
                 stmt.executeUpdate();
 
                 ResultSet rs = stmt.getGeneratedKeys();
-                if(rs.next()){
+                if (rs.next()) {
                     long generatedId = rs.getLong(1);
                     return findById(generatedId);
                 }
@@ -125,7 +126,7 @@ public class AccountDao implements BaseDao<Account, Long> {
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, name);
                 ResultSet resultSet = stmt.executeQuery();
-                if (!resultSet.next()) {
+                if (resultSet.next()) {
                     return true;
                 }
             }

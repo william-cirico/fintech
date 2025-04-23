@@ -10,20 +10,21 @@ import java.sql.PreparedStatement;
 import java.time.LocalDate;
 
 public class InvestmentService {
-    InvestmentDao investmentDao = new InvestmentDao();
+    private final InvestmentDao investmentDao;
+
+    public InvestmentService(InvestmentDao investmentDao) {
+        this.investmentDao = investmentDao;
+    }
 
     public Investment addInvestment(Account account, double amount, LocalDate date, String investmentType, String risk, String liquidity, LocalDate dueDate, double profitability, long account_id) {
-        if(!account.withdraw(amount) || profitability < 0)throw new IllegalArgumentException("Saldo insuficiente para realizar o investimento desejado.");
-
+        if (!account.withdraw(amount) || profitability < 0) {
+            throw new IllegalArgumentException("Saldo insuficiente para realizar o investimento desejado.");
+        }
 
         Investment investment = new Investment(amount, date, investmentType, risk, liquidity, dueDate, profitability, account_id);
         investmentDao.insert(investment);
         account.addInvestment(investment);
 
         return investment;
-
-
-        // falta validações da investment.
-
     }
 }

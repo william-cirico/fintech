@@ -8,16 +8,22 @@ import br.com.fiap.model.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReportService {
-    private final ExpenseDao expenseDao = new ExpenseDao();
-    private final TransferDao transferDao = new TransferDao();
-    private final IncomeDao incomeDao = new IncomeDao();
-    private final InvestmentDao investmentDao = new InvestmentDao();
-
-    private final TransactionService transactionService = new TransactionService();
+    private final ExpenseDao expenseDao;
+    private final TransferDao transferDao;
+    private final IncomeDao incomeDao;
+    private final InvestmentDao investmentDao;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    public ReportService(ExpenseDao expenseDao, TransferDao transferDao, IncomeDao incomeDao, InvestmentDao investmentDao) {
+        this.expenseDao = expenseDao;
+        this.transferDao = transferDao;
+        this.incomeDao = incomeDao;
+        this.investmentDao = investmentDao;
+    }
 
     public double getTotalExpensesByCategoryTypeAndPeriodFromAccount(Account account, ExpenseCategoryType type, LocalDate start, LocalDate end) {
         return expenseDao.getTotalByPeriodFromAccount(account, start, end);
@@ -70,6 +76,7 @@ public class ReportService {
     public void printAccountReport(Account account) {
         List<Expense> expenses = expenseDao.findAllByAccountId(account.getId());
         List<Income> incomes = incomeDao.findAllByAccountId(account.getId());
+        List<Transfer> transfers = transferDao.findAllByAccountId(account.getId());
 
         // Exibe os gastos
         System.out.println("\nTransações: ");
@@ -87,6 +94,13 @@ public class ReportService {
         }
         System.out.println("===============================================================");
 
+        // Exibe as transferências
+        System.out.println("\nTransferências: ");
+        for (Transaction transfer : transfers) {
+            System.out.println(transfer);
+        }
+        System.out.println("===============================================================");
+
         List<Investment> investments = investmentDao.findAllByAccountId(account.getId());
 
         // Exibe investimentos
@@ -94,6 +108,7 @@ public class ReportService {
         for (Investment investimento : investments) {
             System.out.println(investimento);
         }
+        System.out.println("===============================================================");
 
         // Saldo
         System.out.println("Saldo da conta: " + account.getBalance());

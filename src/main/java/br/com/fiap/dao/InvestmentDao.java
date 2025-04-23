@@ -52,8 +52,10 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
 
     @Override
     public Investment insert(Investment investment) {
-        String sql = "INSERT INTO T_FIN_INVESTMENT (AMOUNT, DATE, TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY, ACCOUNT_ID)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = """
+            INSERT INTO T_FIN_INVESTMENT (AMOUNT, "DATE", TYPE, RISK, LIQUIDITY, DUE_DATE, PROFITABILITY, ACCOUNT_ID)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """;
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
@@ -83,9 +85,10 @@ public class InvestmentDao implements BaseDao<Investment, Long> {
 
     @Override
     public Investment update(Investment investment) {
-        String sql = "UPDATE T_FIN_INVESTMENT SET" +
-                " AMOUNT = ?, DATE = ?, TYPE = ?, RISK = ?, LIQUIDITY = ?, DUE_DATE = ?, " +
-                "PROFITABILITY = ? WHERE ID = ?";
+        String sql = """
+            UPDATE T_FIN_INVESTMENT SET AMOUNT = ?, "DATE" = ?, TYPE = ?, RISK = ?, LIQUIDITY = ?, DUE_DATE = ?, PROFITABILITY = ? 
+            WHERE ID = ?
+        """;
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){

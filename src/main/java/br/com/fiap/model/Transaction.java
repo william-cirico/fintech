@@ -8,7 +8,7 @@ public abstract class Transaction {
     private double amount;
     private LocalDate date;
     private String description;
-    private String observations;
+    private String observation;
     private LocalDateTime createdAt;
     private final TransactionType type;
     private final Long originAccountId;
@@ -16,24 +16,24 @@ public abstract class Transaction {
 
 
 
-    public Transaction(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt, TransactionType type, Long originAccountId) {
+    public Transaction(Long id, double amount, LocalDate date, String description, String observation, LocalDateTime createdAt, TransactionType type, Long originAccountId) {
         this.id = id;
         this.amount = amount;
         this.date = date;
         this.description = description;
-        this.observations = observations;
+        this.observation = observation;
         this.createdAt = createdAt;
         this.type = type;
         this.originAccountId = originAccountId;
         this.originAccount = null;
     }
 
-    public Transaction(Long id, double amount, LocalDate date, String description, String observations, LocalDateTime createdAt, TransactionType type, Account originAccount) {
+    public Transaction(Long id, double amount, LocalDate date, String description, String observation, LocalDateTime createdAt, TransactionType type, Account originAccount) {
         this.id = id;
         this.amount = amount;
         this.date = date;
         this.description = description;
-        this.observations = observations;
+        this.observation = observation;
         this.createdAt = createdAt;
         this.type = type;
         this.originAccount = originAccount;
@@ -72,12 +72,12 @@ public abstract class Transaction {
         this.description = description;
     }
 
-    public String getObservations() {
-        return observations;
+    public String getObservation() {
+        return observation;
     }
 
-    public void setObservations(String observations) {
-        this.observations = observations;
+    public void setObservation(String observation) {
+        this.observation = observation;
     }
 
     public TransactionType getType() {

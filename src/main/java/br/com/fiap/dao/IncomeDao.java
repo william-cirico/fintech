@@ -57,7 +57,7 @@ public class IncomeDao implements BaseDao<Income, Long>{
             SELECT COALESCE(SUM(amount), 0)
             FROM T_FIN_INCOME            
             WHERE account_id = ?            
-            AND e.date BETWEEN ? AND ?
+            AND "DATE" BETWEEN ? AND ?
         """;
 
         try(Connection connection = ConnectionFactory.getConnection()){
@@ -84,7 +84,7 @@ public class IncomeDao implements BaseDao<Income, Long>{
         String sql = """
             SELECT * FROM T_FIN_INCOME               
             WHERE account_id = ?            
-            AND e.date BETWEEN ? AND ?
+            AND "DATE" BETWEEN ? AND ?
         """;
 
         try(Connection connection = ConnectionFactory.getConnection()){
@@ -107,14 +107,17 @@ public class IncomeDao implements BaseDao<Income, Long>{
 
     @Override
     public Income insert(Income income) {
-        String sql = "INSERT INTO T_FIN_INCOME (AMOUNT, DATE, DESCRIPTION, OBSERVATIONS) VALUES (?, ?, ?, ?)";
+        String sql = """
+            INSERT INTO T_FIN_INCOME (AMOUNT, "DATE", DESCRIPTION, OBSERVATION, ACCOUNT_ID) VALUES (?, ?, ?, ?, ?)
+        """;
 
         try(Connection connection = ConnectionFactory.getConnection()){
             try(PreparedStatement stm = connection.prepareStatement(sql)){
                 stm.setDouble(1, income.getAmount());
                 stm.setDate(2, java.sql.Date.valueOf(income.getDate()));
                 stm.setString(3, income.getDescription());
-                stm.setString(4, income.getObservations());
+                stm.setString(4, income.getObservation());
+                stm.setLong(5, income.getOriginAccountId());
 
                 stm.executeUpdate();
 
@@ -141,7 +144,7 @@ public class IncomeDao implements BaseDao<Income, Long>{
                 stm.setDouble(1, income.getAmount());
                 stm.setDate(2, java.sql.Date.valueOf(income.getDate()));
                 stm.setString(3, income.getDescription());
-                stm.setString(4, income.getObservations());
+                stm.setString(4, income.getObservation());
                 stm.setLong(5, income.getId());
 
                 stm.executeUpdate();
@@ -195,8 +198,9 @@ public class IncomeDao implements BaseDao<Income, Long>{
                 result.getDouble("AMOUNT"),
                 result.getDate("DATE").toLocalDate(),
                 result.getString("DESCRIPTION"),
-                result.getString("OBSERVATIONS"),
-                result.getTimestamp("CREATED_AT").toLocalDateTime()
+                result.getString("OBSERVATION"),
+                result.getTimestamp("CREATED_AT").toLocalDateTime(),
+                result.getLong("ACCOUNT_ID")
         );
     }
 }
